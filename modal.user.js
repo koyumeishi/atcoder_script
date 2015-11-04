@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         AtCoderModalMoudarui
 // @namespace    koyumeishi_scripts_AtCoderModalMoudarui
-// @version      0.1
+// @downloadURL  https://koyumeishi.github.io/atcoder_script/modal.user.js
+// @version      0.01
 // @description  disable modals
 // @author       koyumeishi
 // @match        http://*.contest.atcoder.jp/*

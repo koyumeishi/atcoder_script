@@ -2,6 +2,7 @@
 // @name        AtcoderBigStandings
 // @namespace   koyumeishi_scripts_AtcoderBigStandings
 // @include     http://*.contest.atcoder.jp/standings*
+// @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
 // @version     0.01
 // @author      koyumeishi
 // @grant       GM_setValue
