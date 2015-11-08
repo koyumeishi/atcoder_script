@@ -19,7 +19,7 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 
 
 ### 使用方法
-    http://*.contest.atcoder/standings*
+    http://*.contest.atcoder.jp/standings*
 にアクセスすると、カスタマイズされた順位表が表示されます。  
 > ![image1](img/img1.png)  
 ---

@@ -3,12 +3,16 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.01
+// @version     0.02
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js
 // ==/UserScript==
+
+// 更新履歴
+// v0.02 2015.11.09
+// 正の得点をしていない提出の提出時間が 00:00 になっていたのを修正(時間を非表示に)
 
 //greasemonkey用  ----------------------------------ここから
 
@@ -196,7 +200,7 @@ function generate_tr_object(item){
       );
 
       //時間
-      if(submited === true ){
+      if(task.score !== 0){
         obj_task_td.append(
           $(
             '<span style="color:grey; display:block">' + 
