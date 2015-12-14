@@ -11,6 +11,8 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.04 2015.12.14
+//  星のemojiは環境次第で着色不可っぽいのでFriend Listに入っていないときはiconを表示するように戻した
 // v0.03 2015.12.14
 //  ARC046のレート更新
 //  「Friend Listに登録/解除」オンマウス時のマウスカーソル変更、星のiconをemojiに変更
@@ -157,7 +159,7 @@ function generate_tr_object(item){
       
       var obj_not_friend = $(
         '<li><a style="cursor: pointer;">' +
-        '🌟 ' + 
+        '<i class="icon icon-star-empty"></i> ' + 
         'Friend List に登録' +
         '</a></li>'
       );

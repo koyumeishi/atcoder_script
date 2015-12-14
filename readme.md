@@ -14,6 +14,9 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
 ### 更新履歴
+##### v0.04 2015.12.14
+- 星のemojiは環境次第で着色不可っぽいのでFriend Listに入っていないときはiconを表示するように戻した
+
 #####v0.03 2015.12.14
 - ARC046のレート更新
 - 「Friend Listに登録/解除」オンマウス時のマウスカーソル変更、星のiconをemojiに変更
