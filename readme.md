@@ -1,13 +1,27 @@
 # Atcoder scripts
-[@koyumeishi_](https://twitter.com/koyumeishi_) の UserScript置き場
+[@koyumeishi_](https://twitter.com/koyumeishi_) の UserScript置き場  
+Github Pagesで公開しています。 githubは[こちら](https://github.com/koyumeishi/atcoder_script)
+
 ##目録
 * [AtCoderCustomStandings](#AtCoderCustomStandings)
 * [AtCoderModalMoudarui](#AtCoderModalMoudarui)
 
 ## AtCoderCustomStandings <a id="AtCoderCustomStandings"></a>
+[https://koyumeishi.github.io/atcoder_script/ranking_script.user.js](https://koyumeishi.github.io/atcoder_script/ranking_script.user.js)
+
 ### はじめに
 AtCoderの順位表をカスタマイズして表示する非公式UserScriptです。 FirefoxのGreasemonkeyとGoogleChromeのTampermonkeyで動作確認しています。 javascript素人が書いたので予期せぬバグや、AtCoder側の仕様変更により使えなくなる場合があるかも知れません。 大切なコンテストでの使用は自己責任でお願いします。  
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
+
+### 更新履歴
+#####v0.03 2015.12.14
+- ARC046のレート更新
+- 「Friend Listに登録/解除」オンマウス時のマウスカーソル変更、星のiconをemojiに変更
+- ユーザー名にhtmlコードを使っているとjQueryが拾ってしまう脆弱性を解消
+- ドロップダウンメニューにレーティング情報追加
+
+#####v0.02 2015.11.09
+- 正の得点をしていない提出の提出時間が 00:00 になっていたのを修正(時間を非表示に)
 
 
 ### インストールとか
@@ -64,9 +78,13 @@ Greasemonkey や Tampermonkey が local strage 的なシステムを提供して
 で更新できるので、手動でいじろうと思えばいじれます。
 
 ## AtCoderModalMoudarui <a id="AtCoderModalMoudarui"></a>
+[https://koyumeishi.github.io/atcoder_script/modal.user.js](https://koyumeishi.github.io/atcoder_script/modal.user.js)  
+
 <blockquote class="twitter-tweet" lang="ja"><p lang="ja" dir="ltr">☆AtCoder社に一言お願いします！ — モーダル閉じるの、もーだるい！ <a href="http://t.co/22Y32U6dQd">http://t.co/22Y32U6dQd</a></p>&mdash; nico_shindannin (@nico_shindannin) <a href="https://twitter.com/nico_shindannin/status/514078969080344576">2014, 9月 22</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-って人向けにAtCoderのコンテスト開始時/終了時に表示されるモーダルを非表示にするscriptも書いてみました。 実際のコンテスト時に非表示になるか未確認ですが。  
-[https://koyumeishi.github.io/atcoder_script/modal.user.js](https://koyumeishi.github.io/atcoder_script/modal.user.js)
+って人向けにAtCoderのコンテスト開始時/終了時に表示されるモーダルを非表示にするscriptも書いてみました。 
+~~実際のコンテスト時に非表示になるか未確認ですが。~~  
+確認しましたが、コンテストの開始・終了がハッキリしないので使用感微妙だと思います。個人的には非推奨です。  
+
   
