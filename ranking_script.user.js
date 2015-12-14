@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.03
+// @version     0.04
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
