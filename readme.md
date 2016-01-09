@@ -14,6 +14,14 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
 ### 更新履歴
+##### v0.05 2016.01.10
+- 順位表の凍結に対応(仮)
+- 現在順位の表示、自分の位置までスクロールする機能を追加
+- ページ再読み込みなしでの順位表更新機能追加(ajaxでstandingsのページを取得してるので実質的には再読み込みしてる)
+- 順位表自動更新機能追加
+- 1ページ当たりの表示件数に"500件表示"を追加
+- rating色付け周りでコードがおかしかったのを修正
+
 ##### v0.04 2015.12.14
 - 星のemojiは環境次第で着色不可っぽいのでFriend Listに入っていないときはiconを表示するように戻した
 

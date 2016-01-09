@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.04
+// @version     0.05
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
@@ -11,6 +11,13 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.05 2016.01.10
+//  順位表の凍結に対応(仮)
+//  現在順位の表示、自分の位置までスクロールする機能を追加
+//  ページ再読み込みなしでの順位表更新機能追加(ajaxでstandingsのページを取得してるので実質的には再読み込みしてる)
+//  順位表自動更新機能追加
+//  1ページ当たりの表示件数に"500件表示"を追加
+//  rating色付け周りでコードがおかしかったのを修正
 // v0.04 2015.12.14
 //  星のemojiは環境次第で着色不可っぽいのでFriend Listに入っていないときはiconを表示するように戻した
 // v0.03 2015.12.14
@@ -132,7 +139,8 @@ function generate_tr_object(item){
         '<li>' +
           '<a href="/users/'+ item.user_screen_name + '">' + 
             '<i class="icon-user"></i> ' + 
-            'ユーザーページ' +
+            //'ユーザーページ' +
+            escapeHTML(item.user_name) + " / " + item.user_screen_name + 
           '</a>' +
         '</li>'
       );
@@ -149,7 +157,7 @@ function generate_tr_object(item){
         var rating = rating_map[item.user_screen_name];
         obj_dd_list.append(
           '<li>' +
-            '<a ' + (enable_rating_color ? 'class="' + get_color(item.user_screen_name) : "") + '">' + 
+            '<a ' + (enable_rating_color ? 'class="' + get_color(item.user_screen_name) + '"': "") + '>' + 
               'Rating(β) : ' + 
               (rating<0 ? (rating/-100).toString() + '級' : rating.toString()) +
             '</a>' +
@@ -206,40 +214,45 @@ function generate_tr_object(item){
   //問題数分<td> 得点(ペナルティ)/時間 </td> を作る
   $.each(item.tasks, function(index, task){
     var obj_task_td = $('<td class="center"></td>');
-    var submited = ('score' in task);
-    if( submited === false ){ //未提出
-      obj_task_td.text('-');
-    }else{  //提出済み
-      //点数
-      if(task.score !== 0){
-        obj_task_td.append(
-          '<span class=\"standings-ac\">' +
-          (task.score/100) +
-          '</span>'
-        );
-      }
-      obj_task_td.append(
-        $(
-          '<span class=\"standings-wa\">' +
-          (Number(task.failure)!==0?(" ("+task.failure+") "):"") + //ペナルティ
-          '</span>'
-        )
-      );
-
-      //時間
-      if(task.score !== 0){
+    if( task.extras === true ){ //凍結
+      obj_task_td.addClass("standings-frozen");
+    }else{
+      var submited = ('score' in task);
+      if( submited === false ){ //未提出
+        obj_task_td.text('-');
+      }else{  //提出済み
+        //点数
+        if(task.score !== 0){
+          obj_task_td.append(
+            '<span class=\"standings-ac\">' +
+            (task.score/100) +
+            '</span>'
+          );
+        }
         obj_task_td.append(
           $(
-            '<span style="color:grey; display:block">' + 
-            (Math.floor(task.elapsed_time/60)<10?"0":"") + 
-            Math.floor(task.elapsed_time/60) + ":" + 
-            (Math.floor(task.elapsed_time%60)<10?"0":"") + 
-            (task.elapsed_time%60) +
+            '<span class=\"standings-wa\">' +
+            (Number(task.failure)!==0?(" ("+task.failure+") "):"") + //ペナルティ
             '</span>'
-           )
+          )
         );
+
+        //時間
+        if(task.score !== 0){
+          obj_task_td.append(
+            $(
+              '<span style="color:grey; display:block">' + 
+              (Math.floor(task.elapsed_time/60)<10?"0":"") + 
+              Math.floor(task.elapsed_time/60) + ":" + 
+              (Math.floor(task.elapsed_time%60)<10?"0":"") + 
+              (task.elapsed_time%60) +
+              '</span>'
+             )
+          );
+        }
       }
     }
+
 
     obj_tr.append(obj_task_td);
   });
@@ -433,12 +446,13 @@ function generate_navi(){
       '<label  style="display:inline !important;  padding:10px;">' + 
       '表示件数' + 
       '</label>' +
-      '<select class="form-control " id="selbox_pagesize">' + 
-      '<option value=10000 id="pgsz_all">All(重いので非推奨)</option>' +
+      '<select class="form-control " id="selbox_pagesize" style="width:100px">' + 
       '<option value=20    id="pgsz_20" >20 </option>' +
       '<option value=50    id="pgsz_50" >50 </option>'  +
       '<option value=100   id="pgsz_100">100</option>'  +
       '<option value=200   id="pgsz_200">200</option>'  +
+      '<option value=500   id="pgsz_500">500</option>'  +
+      '<option value=10000 id="pgsz_all">全件表示</option>' +
       '</select>' +
       '</div>'
     );
@@ -452,10 +466,41 @@ function generate_navi(){
     });
     return selecter;
   })();
+
+  var tooltip_scroll_to_my_standing = (function(){
+    var div_obj = $('<div style="display:table-cell !important; padding:10px; padding-left:10px;"></div>');
+    div_obj.append( $('<a id="rank_navi" style="cursor: pointer;">現在順位 : ' + $(".standings-me > td.standings-rank").text() + '位</a>').click(scroll_to_my_standing) );
+    return div_obj;
+  })();
+
+  var tooltip_reload_standings = (function(){
+    var div_obj = $('<div style="display:table-cell !important; padding:10px; padding-left:10px;"></div>');
+    div_obj.append( $('<a id="reload_standings_navi" style="cursor: pointer;">🔃順位表を更新</a>').click(reload_standings) );
+    return div_obj;
+  })();
   
+  var tooltip_auto_reloading = (function(){
+    var div_obj = $('<div class="checkbox" style="display:table-cell !important; padding:10px; padding-left:30px;"><label><input type="checkbox" id="enable_auto_reload">自動更新(1分毎)</label></div>');
+    var chbox = div_obj.find('#enable_auto_reload');
+    chbox.change(function(){
+      if(chbox.prop('checked') === true){
+        auto_reload_event_id = setInterval(reload_standings, 60000);
+
+      }else{
+        clearInterval(auto_reload_event_id);
+      }
+    });
+    return div_obj;
+  })();
   
 
   //navi.append(btn);
+  if(my_user_id !== 0){
+    navi.append(tooltip_scroll_to_my_standing);
+  }
+  navi.append(tooltip_reload_standings);
+  navi.append(tooltip_auto_reloading);
+
   navi.append(tooltip_friend_standings);
   navi.append(tooltip_screen_name);
   navi.append(tooltip_rating_color);
@@ -466,7 +511,8 @@ function generate_navi(){
 
 //ページ切り替え用footerを生成
 function generate_page_footer(){
-  var wrapper = $('<div class="pagination pagination-centered" id="pagination-standings-footer"></div>');
+
+  var wrapper = $('<div class="pagination pagination-centered" id="pagination-standings"></div>');
   var outer = $('<ul></ul>');
   var num_participants = ATCODER.standings.data.length;
   var num_pages = Math.ceil(num_participants / page_size);
@@ -484,7 +530,7 @@ function generate_page_footer(){
         tmp.addClass('active');
       }
       tmp.click ( function(){
-        $('div#pagination-standings-footer > ul > li.active').removeClass('active');
+        $('div#pagination-standings > ul > li.active').removeClass('active');
         $(this).addClass('active');
         page_pos = p;
 
@@ -509,5 +555,59 @@ $(function(){
   generate_page_footer();
   generate_navi();
 });
+
+//順位更新
+function reload_standings(){
+
+  $('a#reload_standings_navi').text('取得中...');
+  console.log('順位表取得中');
+
+  //ajaxで順位表データを取得
+  $.get("./standings", function(html){
+    new_standings_text = $(html).filter('script[type="text/JavaScript"]').text();
+    new_standings_text = new_standings_text.replace(/\s*var\s*ATCODER\s*=\s*\{\};/m, "");
+    Function(new_standings_text)();
+  });
+  console.log('取得完了');
+
+  $('a#reload_standings_navi').text('更新中...');
+
+  //自分の順位取得
+  if(my_user_id !== 0){
+    //自分の順位を取得
+    for(var i = 0; i<ATCODER.standings.data.length; i++){
+      if(ATCODER.standings.data[i].user_id === my_user_id){
+        my_rank = i;
+        break;
+      }
+    }
+    $('a#rank_navi').text( '現在順位 : ' + $(".standings-me > td.standings-rank").text() + '位' );
+
+    page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
+    generate_page_footer();
+
+  }
+
+  //順位表を更新
+  refresh_rank_table();
+
+  $('a#reload_standings_navi').text('🔃順位表を更新');
+}
+
+//自分の順位までスクロール
+function scroll_to_my_standing(){
+  //自分のいるページへ移動
+  if(page_pos !== Math.floor(my_rank/page_size)){
+    page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
+
+    $('div#pagination-standings > ul > li.active').removeClass('active');
+    $('div#pagination-standings > ul > li:nth-child(' + (page_pos+1) + ')').addClass('active');
+
+    refresh_rank_table();
+  }
+
+  //スクロール
+  $('body,html').animate({scrollTop:$('.standings-me').offset().top-200}, 200, 'swing');
+}
 
 });
