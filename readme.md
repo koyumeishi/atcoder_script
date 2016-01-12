@@ -14,6 +14,9 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
 ### 更新履歴
+##### v0.05a 2016.01.12
+-  非同期通信を理解していなかったので修正
+
 ##### v0.05 2016.01.10
 - 順位表の凍結に対応(仮)
 - 現在順位の表示、自分の位置までスクロールする機能を追加
@@ -25,13 +28,13 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 ##### v0.04 2015.12.14
 - 星のemojiは環境次第で着色不可っぽいのでFriend Listに入っていないときはiconを表示するように戻した
 
-#####v0.03 2015.12.14
+##### v0.03 2015.12.14
 - ARC046のレート更新
 - 「Friend Listに登録/解除」オンマウス時のマウスカーソル変更、星のiconをemojiに変更
 - ユーザー名にhtmlコードを使っているとjQueryが拾ってしまう脆弱性を解消
 - ドロップダウンメニューにレーティング情報追加
 
-#####v0.02 2015.11.09
+##### v0.02 2015.11.09
 - 正の得点をしていない提出の提出時間が 00:00 になっていたのを修正(時間を非表示に)
 
 
@@ -53,7 +56,8 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 1. friendだけの順位表を表示
 2. ユーザー名をAtCoderIDで表示
 3. Rating(β)に基づきユーザー名を色づけ
-4. 1ページ当たりの表示件数(20,50,100,200,全件)
+4. 1ページ当たりの表示件数(20,50,100,200,500,全件)
+5. 順位表自動更新
 
 こんな感じのカスタマイズが出来ます。全件表示は結構重めなので非推奨です。  
 friendの登録/解除は、登録/解除したいユーザーをクリックして出てきたメニューから行ってください。  
@@ -66,11 +70,11 @@ friend list等の設定はブラウザに保存されます。
 
 レーティングの色分け基準や配色に関しては特に考えて決めていません。 
 
->[function append_user_color_css()](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L314)  
+>[function append_user_color_css()](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L360)  
 
 に配色の設定、 
 
->[function get_color(user)](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L341)
+>[function get_color(user)](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L387)
 
 に色分け基準レートの設定があります。
 

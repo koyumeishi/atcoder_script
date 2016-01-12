@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.05
+// @version     0.05a
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
@@ -11,6 +11,8 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.05a 2016.01.12
+//  非同期通信を理解していなかったので修正
 // v0.05 2016.01.10
 //  順位表の凍結に対応(仮)
 //  現在順位の表示、自分の位置までスクロールする機能を追加
@@ -563,35 +565,45 @@ function reload_standings(){
   console.log('順位表取得中');
 
   //ajaxで順位表データを取得
-  $.get("./standings", function(html){
+  $.ajax({
+    url: "./standings",
+  }).done(function(html) {
     new_standings_text = $(html).filter('script[type="text/JavaScript"]').text();
     new_standings_text = new_standings_text.replace(/\s*var\s*ATCODER\s*=\s*\{\};/m, "");
     Function(new_standings_text)();
-  });
-  console.log('取得完了');
-
-  $('a#reload_standings_navi').text('更新中...');
-
-  //自分の順位取得
-  if(my_user_id !== 0){
-    //自分の順位を取得
-    for(var i = 0; i<ATCODER.standings.data.length; i++){
-      if(ATCODER.standings.data[i].user_id === my_user_id){
-        my_rank = i;
-        break;
+    
+    console.log("取得成功");
+    
+    $('a#reload_standings_navi').text('更新中...');
+    
+    //自分の順位取得
+    if(my_user_id !== 0){
+      //自分の順位を取得
+      for(var i = 0; i<ATCODER.standings.data.length; i++){
+        if(ATCODER.standings.data[i].user_id === my_user_id){
+          my_rank = i;
+          break;
+        }
       }
+      $('a#rank_navi').text( '現在順位 : ' + $(".standings-me > td.standings-rank").text() + '位' );
+
+      page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
+      generate_page_footer();
     }
-    $('a#rank_navi').text( '現在順位 : ' + $(".standings-me > td.standings-rank").text() + '位' );
 
-    page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
-    generate_page_footer();
+    //順位表を更新
+    refresh_rank_table();
+    $('a#reload_standings_navi').text('更新完了');
+    
+  }).fail(function(xhr, status, error) {
+    $('a#reload_standings_navi').text('取得失敗');
+    console.log('取得失敗');
+  }).always(function(){
+    setTimeout(function(){
+      $('a#reload_standings_navi').text('🔃順位表を更新');
+	},2000);
+  });
 
-  }
-
-  //順位表を更新
-  refresh_rank_table();
-
-  $('a#reload_standings_navi').text('🔃順位表を更新');
 }
 
 //自分の順位までスクロール
