@@ -14,6 +14,11 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
 ### 更新履歴
+##### v0.07 2016.01.17
+-  ARC047のレート更新
+-  手動で"順位更新"をクリックしたときに自分の順位が正しく表示されない不具合を修正
+-  順位表上部の問題名のリンク先を変更する機能を実装
+
 ##### v0.06 2016.01.12
 -  非同期通信を理解していなかったので修正
 
