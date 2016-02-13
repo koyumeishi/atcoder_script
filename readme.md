@@ -9,11 +9,23 @@ Github Pagesで公開しています。 githubは[こちら](https://github.com/
 ## AtCoderCustomStandings <a id="AtCoderCustomStandings"></a>
 [https://koyumeishi.github.io/atcoder_script/ranking_script.user.js](https://koyumeishi.github.io/atcoder_script/ranking_script.user.js)
 
-### はじめに
+* [はじめに](#hajimeni)
+* [更新履歴](#update)
+* [インストールとか](#install)
+* [使用方法](#usage)
+* [その他](#other)
+
+---
+
+### はじめに<a id="hajimeni"></a>
 AtCoderの順位表をカスタマイズして表示する非公式UserScriptです。 FirefoxのGreasemonkeyとGoogleChromeのTampermonkeyで動作確認しています。 javascript素人が書いたので予期せぬバグや、AtCoder側の仕様変更により使えなくなる場合があるかも知れません。 大切なコンテストでの使用は自己責任でお願いします。  
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
-### 更新履歴
+### 更新履歴<a id="update"></a>
+##### v0.08 2016.02.13
+-  順位表上部の問題名のリンク先を変更したとき、target="_blank"に変更
+-  ページ下部にAtCoderCustomStandings/ratingのバージョンを表示
+
 ##### v0.07 2016.01.17
 -  ARC047のレート更新
 -  手動で"順位更新"をクリックしたときに自分の順位が正しく表示されない不具合を修正
@@ -43,7 +55,7 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 - 正の得点をしていない提出の提出時間が 00:00 になっていたのを修正(時間を非表示に)
 
 
-### インストールとか
+### インストールとか<a id="install"></a>
 
  1. Greasemonkey(Firefox)やTampermonkey(GoogleChrome)やらをブラウザにインストールしておく
  2. 次のリンクを開くとインストールするか尋ねられると思います  
@@ -51,7 +63,7 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 
 
 
-### 使用方法
+### 使用方法<a id="usage"></a>
     http://*.contest.atcoder.jp/standings*
 にアクセスすると、カスタマイズされた順位表が表示されます。  
 > ![image1](img/img1.png)  
@@ -68,7 +80,7 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 friendの登録/解除は、登録/解除したいユーザーをクリックして出てきたメニューから行ってください。  
 friend list等の設定はブラウザに保存されます。
 
-### その他
+### その他<a id="other"></a>
 #### レーティングについて
 レーティングはARC(月1～月2ぐらい)のときに更新され、また、そもそもレーティング付きの人がそんなにいないので、手動でクローラ走らせて更新し、scriptに埋め込んでいます(5級まで。14KBほど)。 更新が遅かったら [@koyumeishi_](https://twitter.com/koyumeishi_)に催促してください。
 クロールして取得したレーティング情報は [csv](https://koyumeishi.github.io/atcoder_script/rating.csv) や [json](https://koyumeishi.github.io/atcoder_script/rating.json) でも公開しています。何かの役に立てられる方はお使いください。
