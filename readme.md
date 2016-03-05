@@ -22,6 +22,9 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
 ### 更新履歴<a id="update"></a>
+##### v0.10 2016.03.05
+-  ARC048のレート更新
+
 ##### v0.09 2016.02.29
 -  ユーザー名 / AtCoderID, AtCoderID / ユーザー名 の表示方式を追加
 -  friend listに登録された人を強調表示する機能の ON/OFF を追加
