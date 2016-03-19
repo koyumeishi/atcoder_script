@@ -22,6 +22,10 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
 
 ### 更新履歴<a id="update"></a>
+<div style="overflow: scroll; height: 250px;">
+##### v0.11 2016.03.19
+-  ARC049のレート更新
+
 ##### v0.10 2016.03.05
 -  ARC048のレート更新
 
@@ -60,7 +64,7 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 
 ##### v0.02 2015.11.09
 - 正の得点をしていない提出の提出時間が 00:00 になっていたのを修正(時間を非表示に)
-
+</div>
 
 ### インストールとか<a id="install"></a>
 
