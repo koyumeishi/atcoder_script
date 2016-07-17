@@ -23,6 +23,9 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 
 ### 更新履歴<a id="update"></a>
 <div style="overflow: scroll; height: 250px;">
+##### v0.19 2016.07.18
+-  new.atcoder.jp に対応
+
 ##### v0.19 2016.07.10
 -  ARC057のレート更新
 
