@@ -137,17 +137,17 @@ friend list等の設定はブラウザに保存されます。
 ~~レーティングはARC(月1～月2ぐらい)のときに更新され、また、そもそもレーティング付きの人がそんなにいないので、手動でクローラ走らせて更新し、scriptに埋め込んでいます(5級まで。14KBほど)。 更新が遅かったら [@koyumeishi_](https://twitter.com/koyumeishi_)に催促してください。~~
 ~~クロールして取得したレーティング情報は [csv](https://koyumeishi.github.io/atcoder_script/rating.csv) や [json](https://koyumeishi.github.io/atcoder_script/rating.json) でも公開しています。何かの役に立てられる方はお使いください。~~
 
-~~レーティングの色分け基準や配色に関しては特に考えて決めていません。 ~~
+~~レーティングの色分け基準や配色に関しては特に考えて決めていません。~~
 
 >[function append_user_color_css()](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L360)  
 
-~~に配色の設定、 ~~
+~~に配色の設定、~~
 
 >[function get_color(user)](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L387)
 
 ~~に色分け基準レートの設定があります。~~
 
-** AtCoderのレーティングシステム一新に伴って、順位表からレーティングが取得できるようになったため廃止しました。 GitHub上に過去のレーティングは残しておきます。 **
+**AtCoderのレーティングシステム一新に伴って、順位表からレーティングが取得できるようになったため廃止しました。 GitHub上に過去のレーティングは残しておきます。**
 
 #### friend listについて
 Greasemonkey や Tampermonkey が local strage 的なシステムを提供してくれているので、そこに保存しています。(参考: [http://wiki.greasespot.net/GM_getValue](http://wiki.greasespot.net/GM_getValue) )
