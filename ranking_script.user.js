@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.20
+// @version     0.21
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
@@ -12,6 +12,15 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.21 2016.09.15
+//  atcoderの仕様変更に伴う改善他
+//   1. user_id のみ表示されるようになったのでユーザー名表示オプションは廃止
+//   2. 順位表更新時に自分の順位の位置にページ切り替えする仕様廃止
+//   3. national flag に対応
+//   4. 公式にテーブルヘッダのリンク先が問題ページになったのでこれの切り替えも廃止
+//   5. 順位表更新時に取得したjson文字列を邪悪な方法で更新してたのでちゃんとjsonとしてパースするよう変更
+//   6. コンテスト終了後、各問題/各ユーザーのsubmissionを確認できるリンクを追加
+//   7. 国別フィルターの実装
 // v0.20 2016.07.18
 //  new.atcoder.jp に対応(仮)
 // v0.19 2016.07.10
@@ -63,6 +72,7 @@
 // v0.02 2015.11.09
 //  正の得点をしていない提出の提出時間が 00:00 になっていたのを修正(時間を非表示に)
 
+
 //greasemonkey用  ----------------------------------ここから
 
 exportFunction(function(key, val) {
@@ -98,14 +108,17 @@ function contentInjector(source) {
 //main関数でwrappingしたscript群をhtmlにinjectする
 contentInjector( function main(){
 
-var updated_date = "2016.07.18";
-var atcoder_custom_standings_version = "0.20";
+var updated_date = "2016.09.15";
+var atcoder_custom_standings_version = "0.21";
 
 //自分のuser_id
 var my_user_id = 0;
 
-//自分の順位(0-index)
+//自分の順位(0-indexed), 問題/名前でsortedな場合はその順位表での順位となる。 pagination用
 var my_rank = 0;
+
+//自分の順位(0-indexed), 実際の順位
+var my_real_rank = 0;
 
 //1ページの表示人数
 var page_size = 50;
@@ -113,19 +126,20 @@ var page_size = 50;
 //今いるページ
 var page_pos = 0;
 
-//ユーザー名をAtCoder IDで表示するか
-//var show_user_screen_name = false;
-// 0 : ユーザー名
-// 1 : AtCoder ID
-// 2 : ユーザー名 / AtCoder ID
-// 3 : AtCoder ID / ユーザー名
-var user_name_display_type = 0;
+//問題
+var contest_tasks = [];
+
+//コンテストが終了したか
+var contest_ended = false;
 
 //ユーザー名をRatingで色分けするか
 var enable_rating_color = true;
 
 //順位表上部の問題名のリンク先を問題ページに変更(元々は"その問題の得点で降順/昇順ソート")
 var enable_modify_table_header = false;
+
+//country filter用。 ATCODER.standings.data をここに保存。 これを参照して順位表を作る
+var my_standings_data = [];
 
 //トモダチィ
 var friend_list = {};
@@ -167,16 +181,12 @@ function generate_tr_object(item){
     (function(){
       var obj_td = $('<td class="standings-username dropdown"></td>');
       var my_user_name = item.user_screen_name;
-      if(user_name_display_type === 0) my_user_name = escapeHTML(item.user_name);
-      if(user_name_display_type === 1) my_user_name = item.user_screen_name;
-      if(user_name_display_type === 2) my_user_name = escapeHTML(item.user_name) + "<br><span style='color : grey !important; font-weight : lighter !important;'>" + item.user_screen_name + "</span>";
-      if(user_name_display_type === 3) my_user_name = item.user_screen_name + "<br><span style='color : grey !important; font-weight : lighter !important;'>" + escapeHTML(item.user_name) + "</span>";
 
       obj_td.append(
         $(
           '<a class="dropdown-toggle" data-toggle="dropdown" style="display:block;" href="#"> ' +
+            '<img style="vertical-align: middle; width: 16px; height: 16px;" src="/img/flag/' + item.country + '.png">' +
             '<span ' + (enable_rating_color ? 'class="' + get_color(item.rating) : "") + '">' + 
-              //(show_user_screen_name ? item.user_screen_name : escapeHTML(item.user_name)) + 
               my_user_name +
             '</span> ' +
           '</a>'
@@ -189,7 +199,7 @@ function generate_tr_object(item){
 
       obj_dd_list.append(
         '<li>' +
-          '<a href="http://new.atcoder.jp/user/'+ item.user_screen_name + '" target="_blank">' + 
+          '<a href="http://atcoder.jp/user/'+ item.user_screen_name + '" target="_blank">' + 
             '<i class="icon-user"></i> ' + 
             //'ユーザーページ' +
             escapeHTML(item.user_name) + " / " + item.user_screen_name + 
@@ -294,6 +304,11 @@ function generate_tr_object(item){
             '</span>'
           )
         );
+        if(contest_ended){
+          obj_task_td.append(
+            '<a href="/submissions/all?task_screen_name=' + contest_tasks[index] + '&user_screen_name=' + item.user_screen_name + '" target="_blank"><i class="icon-search"></i></a>'
+          );
+        }
 
         //時間
         if(task.score !== 0){
@@ -324,6 +339,7 @@ function generate_tr_object(item){
       $(
         '<span class=\"standings-score\">' + Number(item.score)/100 + '</span>' +
         '<span class="standings-wa"> ' + (Number(item.failure)>0  ? "(" + item.failure + ")" : "") + '</span>' +
+        (contest_ended ? '<a href="/submissions/all?user_screen_name=' + item.user_screen_name + '" target="_blank"><i class="icon-search"></i></a>' : "") +
         '<span style="color:grey; display:block">' +
         (Math.floor( Number(item.penalty)/60 )<10?"0":"") + Math.floor( Number(item.penalty)/60 ) +
         ":" + (Math.floor( Number(item.penalty)%60 )<10?"0":"") + Number(item.penalty)%60 +
@@ -340,8 +356,8 @@ function generate_tr_object(item){
 //<tbody>を返す
 function generate_standings(begin, num){
   var ret = $('<tbody></tbody>');
-  for(var i = begin; i<begin+num && i<ATCODER.standings.data.length; i++){
-    var item = ATCODER.standings.data[i];
+  for(var i = begin; i<begin+num && i<my_standings_data.length; i++){
+    var item = my_standings_data[i];
     var obj = generate_tr_object(item);
     ret.append(obj);
   }
@@ -352,8 +368,8 @@ function generate_standings(begin, num){
 //<tbody>を返す
 function generate_friend_standings(){
   var ret = $('<tbody></tbody>');
-  for(var i = 0; i<ATCODER.standings.data.length; i++){
-    var item = ATCODER.standings.data[i];
+  for(var i = 0; i<my_standings_data.length; i++){
+    var item = my_standings_data[i];
     if(item.user_id === my_user_id || item.user_screen_name in friend_list){
       var obj = generate_tr_object(item);
       ret.append(obj);
@@ -373,16 +389,15 @@ function initialize_variables(){
       page_size = 50;
       GM_setValue('GM_page_size', 50);
     }
-    //show_user_screen_name = GM_getValue('GM_show_user_screen_name', false);
-    user_name_display_type = GM_getValue('GM_user_name_display_type', 0);
     enable_rating_color = GM_getValue('GM_enable_rating_color', true);
-    enable_modify_table_header = GM_getValue('GM_enable_modify_table_header', false);
     emphasize_friend = GM_getValue('GM_emphasize_friend', true);
   }
   catch(e){
     console.log("保存された値の取得失敗");
     console.log(e);
   }
+
+  my_standings_data = ATCODER.standings.data;
   
   if( 'me' in ATCODER.standings === true ){
     my_user_id = ATCODER.standings.me.user_id;  //自分のユーザーID
@@ -391,6 +406,7 @@ function initialize_variables(){
     for(var i = 0; i<ATCODER.standings.data.length; i++){
       if(ATCODER.standings.data[i].user_id === my_user_id){
         my_rank = i;
+        my_real_rank = ATCODER.standings.data[i].rank;
         break;
       }
     }
@@ -410,6 +426,9 @@ function update_friend_ranking(){
 }
   
 function refresh_rank_table(){
+  set_country_filter( $('#country_filter option:selected').val() );
+  var num_pages = Math.ceil(my_standings_data.length / page_size);
+  if(num_pages <= page_pos) page_pos = 0;
   if(show_friend_standing){
     update_friend_ranking();
   }else{
@@ -493,46 +512,6 @@ function generate_navi(){
     return div_obj;
   })();
   
-  /*
-  //screen name
-  var tooltip_screen_name = (function(){
-    var div_obj = $('<div class="checkbox" style="display:table-cell !important; padding:10px; padding-left:30px;"><label><input type="checkbox" id="enable_showing_atcoder_id">ユーザ名表示をAtCoderIDにする</label></div>');
-    var chbox = div_obj.find('#enable_showing_atcoder_id');
-    if(show_user_screen_name) chbox.prop('checked', true);
-    chbox.change(function(){
-      show_user_screen_name = chbox.prop('checked');
-      GM_setValue('GM_show_user_screen_name', show_user_screen_name);
-      refresh_rank_table();
-    });
-    return div_obj;
-  })();
-  */
-
-  //display name
-  var tooltip_display_name = (function(){
-    var selecter = $(
-      '<div style="display:table-cell !important; padding:5px;">' +
-      '<label style="display:inline !important;">' + 
-      'User Name' + 
-      '</label>' +
-      '<select class="form-control " id="selbox_display_name" style="width:170px">' + 
-      '<option value=0 id="display_type_0">User Name</option>' +
-      '<option value=1 id="display_type_1">AtCoderID</option>' +
-      '<option value=2 id="display_type_2">User Name / AtCoderID</option>' +
-      '<option value=3 id="display_type_3">AtCoderID / User Name</option>' +
-      '</select>' +
-      '</div>'
-    );
-    selecter.find('option[value=' + user_name_display_type + ']').prop('selected', true);
-
-    selecter.find('#selbox_display_name').change( function(){
-      user_name_display_type = Number( $('#selbox_display_name option:selected').val() );
-      GM_setValue('GM_user_name_display_type', user_name_display_type);
-      refresh_rank_table();
-    });
-    return selecter;
-  })();
-  
   //rating color
   var tooltip_rating_color = (function(){
     var div_obj = $('<div class="checkbox" style="display:table-cell !important; padding:10px; padding-left:30px;"><label><input type="checkbox" id="enable_showing_rating_color">Rating Color</label></div>');
@@ -572,11 +551,229 @@ function generate_navi(){
     });
     return selecter;
   })();
+
+  var tooltip_country_filter = (function(){
+    var selecter = $(
+      '<div class="form-horizontal"  style="display:table-cell !important;  padding:10px;">' +
+      '<label  style="display:inline !important;  padding:10px;">' + 
+      'Country' + 
+      '</label>' +
+      '<select id="country_filter" class="input-small span2">' + 
+      '      <option value="none" selected>-</option>' + 
+      '      <option value="AF">Afghanistan</option>' + 
+      '      <option value="AL">Albania</option>' + 
+      '      <option value="DZ">Algeria</option>' + 
+      '      <option value="AD">Andorra</option>' + 
+      '      <option value="AO">Angola</option>' + 
+      '      <option value="AG">Antigua and Barbuda</option>' + 
+      '      <option value="AR">Argentina</option>' + 
+      '      <option value="AM">Armenia</option>' + 
+      '      <option value="AU">Australia</option>' + 
+      '      <option value="AT">Austria</option>' + 
+      '      <option value="AZ">Azerbaijan</option>' + 
+      '      <option value="BS">Bahamas</option>' + 
+      '      <option value="BH">Bahrain</option>' + 
+      '      <option value="BD">Bangladesh</option>' + 
+      '      <option value="BB">Barbados</option>' + 
+      '      <option value="BY">Belarus</option>' + 
+      '      <option value="BE">Belgium</option>' + 
+      '      <option value="BZ">Belize</option>' + 
+      '      <option value="BJ">Benin</option>' + 
+      '      <option value="BT">Bhutan</option>' + 
+      '      <option value="BO">Bolivia</option>' + 
+      '      <option value="BA">Bosnia and Herzegovina</option>' + 
+      '      <option value="BW">Botswana</option>' + 
+      '      <option value="BR">Brazil</option>' + 
+      '      <option value="BN">Brunei</option>' + 
+      '      <option value="BG">Bulgaria</option>' + 
+      '      <option value="BF">Burkina Faso</option>' + 
+      '      <option value="BI">Burundi</option>' + 
+      '      <option value="KH">Cambodia</option>' + 
+      '      <option value="CM">Cameroon</option>' + 
+      '      <option value="CA">Canada</option>' + 
+      '      <option value="CV">Cape Verde</option>' + 
+      '      <option value="CF">Central African Republic</option>' + 
+      '      <option value="TD">Chad</option>' + 
+      '      <option value="CL">Chile</option>' + 
+      '      <option value="CN">China</option>' + 
+      '      <option value="CO">Colombia</option>' + 
+      '      <option value="KM">Comoros</option>' + 
+      '      <option value="CK">Cook</option>' + 
+      '      <option value="CR">Costa Rica</option>' + 
+      '      <option value="HR">Croatia</option>' + 
+      '      <option value="CU">Cuba</option>' + 
+      '      <option value="CY">Cyprus</option>' + 
+      '      <option value="CZ">Czech Republic</option>' + 
+      '      <option value="CI">Côte d\'Ivoire</option>' + 
+      '      <option value="CD">Democratic Republic of the Congo</option>' + 
+      '      <option value="DK">Denmark</option>' + 
+      '      <option value="DJ">Djibouti</option>' + 
+      '      <option value="DM">Dominica</option>' + 
+      '      <option value="DO">Dominican Republic</option>' + 
+      '      <option value="EC">Ecuador</option>' + 
+      '      <option value="EG">Egypt</option>' + 
+      '      <option value="SV">El Salvador</option>' + 
+      '      <option value="GQ">Equatorial Guinea</option>' + 
+      '      <option value="ER">Eritrea</option>' + 
+      '      <option value="EE">Estonia</option>' + 
+      '      <option value="ET">Ethiopia</option>' + 
+      '      <option value="FJ">Fiji</option>' + 
+      '      <option value="FI">Finland</option>' + 
+      '      <option value="MK">Former Yugoslav Republic of Macedonia</option>' + 
+      '      <option value="FR">France</option>' + 
+      '      <option value="GA">Gabon</option>' + 
+      '      <option value="GM">Gambia</option>' + 
+      '      <option value="GE">Georgia</option>' + 
+      '      <option value="DE">Germany</option>' + 
+      '      <option value="GH">Ghana</option>' + 
+      '      <option value="GR">Greece</option>' + 
+      '      <option value="GD">Grenada</option>' + 
+      '      <option value="GT">Guatemala</option>' + 
+      '      <option value="GN">Guinea</option>' + 
+      '      <option value="GW">Guinea-Bissau</option>' + 
+      '      <option value="GY">Guyana</option>' + 
+      '      <option value="HK">Hong Kong</option>' + 
+      '      <option value="HT">Haiti</option>' + 
+      '      <option value="HN">Honduras</option>' + 
+      '      <option value="HU">Hungary</option>' + 
+      '      <option value="IS">Iceland</option>' + 
+      '      <option value="IN">India</option>' + 
+      '      <option value="ID">Indonesia</option>' + 
+      '      <option value="IR">Iran</option>' + 
+      '      <option value="IQ">Iraq</option>' + 
+      '      <option value="IE">Ireland</option>' + 
+      '      <option value="IL">Israel</option>' + 
+      '      <option value="IT">Italy</option>' + 
+      '      <option value="JM">Jamaica</option>' + 
+      '      <option value="JP">Japan</option>' + 
+      '      <option value="JO">Jordan</option>' + 
+      '      <option value="KZ">Kazakhstan</option>' + 
+      '      <option value="KE">Kenya</option>' + 
+      '      <option value="KI">Kiribati</option>' + 
+      '      <option value="KW">Kuwait</option>' + 
+      '      <option value="KG">Kyrgyz Republic</option>' + 
+      '      <option value="LA">Laos</option>' + 
+      '      <option value="LV">Latvia</option>' + 
+      '      <option value="LB">Lebanon</option>' + 
+      '      <option value="LS">Lesotho</option>' + 
+      '      <option value="LR">Liberia</option>' + 
+      '      <option value="LY">Libya</option>' + 
+      '      <option value="LI">Liechtenstein</option>' + 
+      '      <option value="LT">Lithuania</option>' + 
+      '      <option value="LU">Luxembourg</option>' + 
+      '      <option value="MG">Madagascar</option>' + 
+      '      <option value="MW">Malawi</option>' + 
+      '      <option value="MY">Malaysia</option>' + 
+      '      <option value="MV">Maldives</option>' + 
+      '      <option value="ML">Mali</option>' + 
+      '      <option value="MT">Malta</option>' + 
+      '      <option value="MH">Marshall</option>' + 
+      '      <option value="MR">Mauritania</option>' + 
+      '      <option value="MU">Mauritius</option>' + 
+      '      <option value="MX">Mexico</option>' + 
+      '      <option value="FM">Micronesia</option>' + 
+      '      <option value="MD">Moldova</option>' + 
+      '      <option value="MC">Monaco</option>' + 
+      '      <option value="MN">Mongolia</option>' + 
+      '      <option value="ME">Montenegro</option>' + 
+      '      <option value="MA">Morocco</option>' + 
+      '      <option value="MZ">Mozambique</option>' + 
+      '      <option value="MM">Myanmar</option>' + 
+      '      <option value="NA">Namibia</option>' + 
+      '      <option value="NR">Nauru</option>' + 
+      '      <option value="NP">Nepal</option>' + 
+      '      <option value="NL">Netherlands</option>' + 
+      '      <option value="NZ">New Zealand</option>' + 
+      '      <option value="NI">Nicaragua</option>' + 
+      '      <option value="NE">Niger</option>' + 
+      '      <option value="NG">Nigeria</option>' + 
+      '      <option value="NU">Niue</option>' + 
+      '      <option value="NO">Norway</option>' + 
+      '      <option value="OM">Oman</option>' + 
+      '      <option value="PK">Pakistan</option>' + 
+      '      <option value="PW">Palau</option>' + 
+      '      <option value="PS">Palestine</option>' + 
+      '      <option value="PA">Panama</option>' + 
+      '      <option value="PG">Papua New Guinea</option>' + 
+      '      <option value="PY">Paraguay</option>' + 
+      '      <option value="PE">Peru</option>' + 
+      '      <option value="PH">Philippines</option>' + 
+      '      <option value="PL">Poland</option>' + 
+      '      <option value="PT">Portugal</option>' + 
+      '      <option value="QA">Qatar</option>' + 
+      '      <option value="CG">Republic of Congo</option>' + 
+      '      <option value="KR">Republic of Korea</option>' + 
+      '      <option value="ZA">Republic of South Africa</option>' + 
+      '      <option value="RO">Romania</option>' + 
+      '      <option value="RU">Russia</option>' + 
+      '      <option value="RW">Rwanda</option>' + 
+      '      <option value="KN">Saint Christopher and Nevis</option>' + 
+      '      <option value="LC">Saint Lucia</option>' + 
+      '      <option value="VC">Saint Vincent</option>' + 
+      '      <option value="WS">Samoa</option>' + 
+      '      <option value="SM">San Marino</option>' + 
+      '      <option value="ST">Sao Tome and Principe</option>' + 
+      '      <option value="SA">Saudi Arabia</option>' + 
+      '      <option value="SN">Senegal</option>' + 
+      '      <option value="RS">Serbia</option>' + 
+      '      <option value="SC">Seychelles</option>' + 
+      '      <option value="SL">Sierra Leone</option>' + 
+      '      <option value="SG">Singapore</option>' + 
+      '      <option value="SK">Slovakia</option>' + 
+      '      <option value="SI">Slovenia</option>' + 
+      '      <option value="SB">Solomon</option>' + 
+      '      <option value="SO">Somalia</option>' + 
+      '      <option value="SS">South Sudan</option>' + 
+      '      <option value="ES">Spain</option>' + 
+      '      <option value="LK">Sri Lanka</option>' + 
+      '      <option value="SD">Sudan</option>' + 
+      '      <option value="SR">Suriname</option>' + 
+      '      <option value="SZ">Swaziland</option>' + 
+      '      <option value="SE">Sweden</option>' + 
+      '      <option value="CH">Switzerland</option>' + 
+      '      <option value="SY">Syria</option>' + 
+      '      <option value="TW">Taiwan</option>' + 
+      '      <option value="TJ">Tajikistan</option>' + 
+      '      <option value="TZ">Tanzania</option>' + 
+      '      <option value="TH">Thailand</option>' + 
+      '      <option value="TL">Timor-Leste</option>' + 
+      '      <option value="TG">Togo</option>' + 
+      '      <option value="TO">Tonga</option>' + 
+      '      <option value="TT">Trinidad and Tobago</option>' + 
+      '      <option value="TN">Tunisia</option>' + 
+      '      <option value="TR">Turkey</option>' + 
+      '      <option value="TM">Turkmenistan</option>' + 
+      '      <option value="TV">Tuvalu</option>' + 
+      '      <option value="UG">Uganda</option>' + 
+      '      <option value="UA">Ukraine</option>' + 
+      '      <option value="AE">United Arab Emirates</option>' + 
+      '      <option value="GB">United Kingdom</option>' + 
+      '      <option value="US">United States of America</option>' + 
+      '      <option value="XX">Unknown</option>' + 
+      '      <option value="UY">Uruguay</option>' + 
+      '      <option value="UZ">Uzbekistan</option>' + 
+      '      <option value="VU">Vanuatu</option>' + 
+      '      <option value="VA">Vatican</option>' + 
+      '      <option value="VE">Venezuela</option>' + 
+      '      <option value="VN">Viet Nam</option>' + 
+      '      <option value="YE">Yemen</option>' + 
+      '      <option value="ZM">Zambia</option>' + 
+      '      <option value="ZW">Zimbabwe</option>' + 
+      '</select>' +
+      '</div>'
+    );
+
+    selecter.find('#country_filter').change( function(){
+      refresh_rank_table();
+      generate_page_footer();
+    });
+    return selecter;
+  })();
   
   //my standing and scroll link
   var tooltip_scroll_to_my_standing = (function(){
     var div_obj = $('<div style="display:table-cell !important; padding:10px; padding-left:10px;"></div>');
-    div_obj.append( $('<a id="rank_navi" style="cursor: pointer;">Your Rank : ' + $(".standings-me > td.standings-rank").text() + '</a>').click(scroll_to_my_standing) );
+    div_obj.append( $('<a id="rank_navi" style="cursor: pointer;">Your Rank : ' + String(my_real_rank) + '</a>').click(scroll_to_my_standing) );
     return div_obj;
   })();
 
@@ -601,21 +798,7 @@ function generate_navi(){
     });
     return div_obj;
   })();
-  
-  var tooltip_modify_table_header = (function(){
-    var div_obj = $('<div class="checkbox" style="display:table-cell !important; padding:10px; padding-left:30px;"><label><input type="checkbox" id="enable_modify_table_header">Switch table\'s link to problem page</label></div>');
-    var chbox = div_obj.find('#enable_modify_table_header');
-    
-    if(enable_modify_table_header) chbox.prop('checked', true);
-    
-    chbox.change(function(){
-      enable_modify_table_header = chbox.prop('checked');
-      GM_setValue('GM_enable_modify_table_header', enable_modify_table_header);
-      location.reload();
-    });
-    return div_obj;
-  })();
-  
+
   var tooltip_emphasize_friend = (function(){
     var div_obj = $('<div class="checkbox" style="display:table-cell !important; padding:10px; padding-left:30px;"><label><input type="checkbox" id="emphasize_friend">Highlight Friends</label></div>');
     var chbox = div_obj.find('#emphasize_friend');
@@ -640,10 +823,8 @@ function generate_navi(){
 
   navi.append(tooltip_friend_standings);
   navi.append(tooltip_emphasize_friend);
-  //navi.append(tooltip_screen_name);
-  navi.append(tooltip_display_name);
   navi.append(tooltip_rating_color);
-  navi.append(tooltip_modify_table_header);
+  navi.append(tooltip_country_filter);
   navi.append(tooltip_pagesize);
   
   $('h2').after(navi);
@@ -654,7 +835,7 @@ function generate_page_footer(){
 
   var wrapper = $('<div class="pagination pagination-centered" id="pagination-standings"></div>');
   var outer = $('<ul></ul>');
-  var num_participants = ATCODER.standings.data.length;
+  var num_participants = my_standings_data.length;
   var num_pages = Math.ceil(num_participants / page_size);
   for(var i=0; i<num_pages; i++){
     (function(){
@@ -696,11 +877,14 @@ function reload_standings(){
   $.ajax({
     url: "./standings",
   }).done(function(html) {
-    new_standings_text = $(html).filter('script[type="text/JavaScript"]').text();
-    new_standings_text = new_standings_text.replace(/\s*var\s*ATCODER\s*=\s*\{\};/m, "");
-    Function(new_standings_text)();
-    
-    console.log("successfully got standings");
+    var new_standings_text = $(html).filter('script[type="text/JavaScript"]').text().split("\n");
+    var reg = /\s*data:\s(\[.*\]),/;
+    for(var i = 0; i<new_standings_text.length; i++){
+      var res = reg.exec(new_standings_text[i]);
+      if(res === null) continue;
+      ATCODER.standings.data = JSON.parse(res[1]);
+      console.log("successfully got standings");
+    }
     
     $('a#reload_standings_navi').text('Updating...');
     
@@ -710,10 +894,11 @@ function reload_standings(){
       for(var i = 0; i<ATCODER.standings.data.length; i++){
         if(ATCODER.standings.data[i].user_id === my_user_id){
           my_rank = i;
+          my_real_rank = ATCODER.standings.data[i].rank;
           break;
         }
       }
-      page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
+      //page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
       generate_page_footer();
     }
 
@@ -721,7 +906,7 @@ function reload_standings(){
     refresh_rank_table();
     
     if(my_user_id !== 0){
-      $('a#rank_navi').text( 'Your Rank : ' + $(".standings-me > td.standings-rank").text() );
+      $('a#rank_navi').text( 'Your Rank : ' + String(my_real_rank) );
     }
     
     $('a#reload_standings_navi').text('Updated');
@@ -753,27 +938,38 @@ function scroll_to_my_standing(){
   $('body,html').animate({scrollTop:$('.standings-me').offset().top-200}, 200, 'swing');
 }
 
-//テーブルの問題のリンク先を変更
-function modify_thead(){
-  if(enable_modify_table_header === false) return;
-  
-  var th = $('#contest-standings > thead > tr > th:gt(1)');
-  var num_tasks = th.length - 1;
-  $.ajax({
-    url: "./assignments",
-  }).done(function(html) {
-    var assignments_table = $(html).find('table > tbody > tr');
-    function get_task_url(task, task_name){
-      var tmp = assignments_table.eq(task).find('td:eq(1) > a');
-      return tmp.attr('href');
+//問題のurl取得
+function get_tasks(){
+  var t_end = new Date( Date.parse($('time#contest-end-time').text()) );
+  var t_now = new Date( Date.parse($('time#server-current-time').text()) );
+
+  if( t_end < t_now ){
+    contest_ended = true;
+    console.log("contest_ended");
+  }
+
+  var t_head = $('table#contest-standings > thead > tr > th');
+  for(var i = 2; i<t_head.length - 1; i++){
+    contest_tasks.push( /\/tasks\/(.*)/.exec( t_head.eq(i).find('a').attr('href') )[1] );
+    t_head.eq(i).find('a').attr("target", "_blank");
+    t_head.eq(i).find('a').click(function(ev){ev.stopPropagation();});
+    if(contest_ended){
+      t_head.eq(i).append('<a href="/submissions/all?task_screen_name=' + contest_tasks[i-2] + '" target="_blank"><i class="icon-search"></i></a>');
+      t_head.eq(i).find('a:eq(1)').click(function(ev){ev.stopPropagation();});
     }
-    for(var i = 0; i<num_tasks; i++){
-      var url = get_task_url(i, th.eq(i).text());
-      th.eq(i).children('a').attr('href', url).attr('target','_blank');
-    }
-  }).fail(function(xhr, status, error){
-  }).always(function(){
-  });
+  }
+}
+
+
+function set_country_filter(cn){
+  console.log("country filter : " , cn);
+  if(cn === "none"){
+    my_standings_data = ATCODER.standings.data;
+  }else{
+    my_standings_data = ATCODER.standings.data.filter(function(ele){
+      return (ele.country === cn);
+    });
+  }
 }
 
 //ページ下部にバージョン情報を表示
@@ -788,12 +984,12 @@ function generate_version_info(){
 //ロード時に実行
 $(function(){
   initialize_variables();
+  get_tasks();
   append_user_color_css();
   update_ranking(page_pos*page_size, page_size);
   generate_page_footer();
   generate_version_info();
   generate_navi();
-  modify_thead();
 });
 
 

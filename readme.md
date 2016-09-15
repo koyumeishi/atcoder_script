@@ -23,6 +23,15 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 
 ### 更新履歴<a id="update"></a>
 <div style="overflow: scroll; height: 250px;">
+##### v0.21 2016.09.15
+- atcoderの仕様変更に伴う改善他
+-  1. user_id のみ表示されるようになったのでユーザー名表示オプションは廃止
+-  2. 順位表更新時に自分の順位の位置にページ切り替えする仕様廃止
+-  3. national flag に対応
+-  4. 公式にテーブルヘッダのリンク先が問題ページになったのでこれの切り替えも廃止
+-  5. 順位表更新時に取得したjson文字列を邪悪な方法で更新してたのでちゃんとjsonとしてパースするよう変更
+-  6. コンテスト終了後、各問題/各ユーザーのsubmissionを確認できるリンクを追加
+-  7. 国別フィルターの実装
 ##### v0.20 2016.07.18
 -  new.atcoder.jp に対応
 
@@ -106,32 +115,39 @@ zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.go
 にアクセスすると、カスタマイズされた順位表が表示されます。  
 > ![image1](img/img1.png)  
 ---
+Friends Standings  
 > ![image2](img/img2.png)  
+---
+Country Filter  
+> ![image3](img/img3.png)  
 
 1. friendだけの順位表を表示
 2. ユーザー名をAtCoderIDで表示
 3. Rating(β)に基づきユーザー名を色づけ
 4. 1ページ当たりの表示件数(20,50,100,200,500,全件)
 5. 順位表自動更新
+6. 国別フィルター
 
 こんな感じのカスタマイズが出来ます。全件表示は結構重めなので非推奨です。  
 friendの登録/解除は、登録/解除したいユーザーをクリックして出てきたメニューから行ってください。  
 friend list等の設定はブラウザに保存されます。
 
 ### その他<a id="other"></a>
-#### レーティングについて
-レーティングはARC(月1～月2ぐらい)のときに更新され、また、そもそもレーティング付きの人がそんなにいないので、手動でクローラ走らせて更新し、scriptに埋め込んでいます(5級まで。14KBほど)。 更新が遅かったら [@koyumeishi_](https://twitter.com/koyumeishi_)に催促してください。
-クロールして取得したレーティング情報は [csv](https://koyumeishi.github.io/atcoder_script/rating.csv) や [json](https://koyumeishi.github.io/atcoder_script/rating.json) でも公開しています。何かの役に立てられる方はお使いください。
+#### ~~レーティングについて~~
+~~レーティングはARC(月1～月2ぐらい)のときに更新され、また、そもそもレーティング付きの人がそんなにいないので、手動でクローラ走らせて更新し、scriptに埋め込んでいます(5級まで。14KBほど)。 更新が遅かったら [@koyumeishi_](https://twitter.com/koyumeishi_)に催促してください。~~
+~~クロールして取得したレーティング情報は [csv](https://koyumeishi.github.io/atcoder_script/rating.csv) や [json](https://koyumeishi.github.io/atcoder_script/rating.json) でも公開しています。何かの役に立てられる方はお使いください。~~
 
-レーティングの色分け基準や配色に関しては特に考えて決めていません。 
+~~レーティングの色分け基準や配色に関しては特に考えて決めていません。 ~~
 
 >[function append_user_color_css()](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L360)  
 
-に配色の設定、 
+~~に配色の設定、 ~~
 
 >[function get_color(user)](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L387)
 
-に色分け基準レートの設定があります。
+~~に色分け基準レートの設定があります。~~
+
+** AtCoderのレーティングシステム一新に伴って、順位表からレーティングが取得できるようになったため廃止しました。 GitHub上に過去のレーティングは残しておきます。 **
 
 #### friend listについて
 Greasemonkey や Tampermonkey が local strage 的なシステムを提供してくれているので、そこに保存しています。(参考: [http://wiki.greasespot.net/GM_getValue](http://wiki.greasespot.net/GM_getValue) )
