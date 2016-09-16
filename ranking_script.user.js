@@ -110,8 +110,8 @@ function contentInjector(source) {
 //main関数でwrappingしたscript群をhtmlにinjectする
 contentInjector( function main(){
 
-var updated_date = "2016.09.15";
-var atcoder_custom_standings_version = "0.21";
+var updated_date = "2016.09.17";
+var atcoder_custom_standings_version = "0.22";
 
 //自分のuser_id
 var my_user_id = 0;
