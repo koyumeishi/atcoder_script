@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.22
+// @version     0.23
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
@@ -12,6 +12,9 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.23 2016.10.02
+//  country filter の先頭に表示する国を自国へ変更
+//  country filter ON時に自分の順位へ移動できなかったバグを解消
 // v0.22 2016.09.17
 //  country filter に表示するを参加者のいる国に限定
 // v0.21 2016.09.15
@@ -110,8 +113,8 @@ function contentInjector(source) {
 //main関数でwrappingしたscript群をhtmlにinjectする
 contentInjector( function main(){
 
-var updated_date = "2016.09.17";
-var atcoder_custom_standings_version = "0.22";
+var updated_date = "2016.10.02";
+var atcoder_custom_standings_version = "0.23";
 
 //自分のuser_id
 var my_user_id = 0;
@@ -137,8 +140,8 @@ var contest_ended = false;
 //ユーザー名をRatingで色分けするか
 var enable_rating_color = true;
 
-//順位表上部の問題名のリンク先を問題ページに変更(元々は"その問題の得点で降順/昇順ソート")
-var enable_modify_table_header = false;
+//国旗の画像が多いと重いので ON/OFF
+var show_country_flag = true;
 
 //country filter用。 ATCODER.standings.data をここに保存。 これを参照して順位表を作る
 var my_standings_data = [];
@@ -187,7 +190,7 @@ function generate_tr_object(item){
       obj_td.append(
         $(
           '<a class="dropdown-toggle" data-toggle="dropdown" style="display:block;" href="#"> ' +
-            '<img style="vertical-align: middle; width: 16px; height: 16px;" src="/img/flag/' + item.country + '.png">' +
+            (show_country_flag ? '<img style="vertical-align: middle; width: 16px; height: 16px;" src="/img/flag/' + item.country + '.png">' : "") +
             '<span ' + (enable_rating_color ? 'class="' + get_color(item.rating) : "") + '">' + 
               my_user_name +
             '</span> ' +
@@ -392,6 +395,7 @@ function initialize_variables(){
       GM_setValue('GM_page_size', 50);
     }
     enable_rating_color = GM_getValue('GM_enable_rating_color', true);
+    show_country_flag = GM_getValue('GM_show_country_flag', true);
     emphasize_friend = GM_getValue('GM_emphasize_friend', true);
   }
   catch(e){
@@ -399,20 +403,14 @@ function initialize_variables(){
     console.log(e);
   }
 
-
   my_standings_data = ATCODER.standings.data;
 
   if( 'me' in ATCODER.standings === true ){
     my_user_id = ATCODER.standings.me.user_id;  //自分のユーザーID
     
     //自分の順位取得
-    for(var i = 0; i<ATCODER.standings.data.length; i++){
-      if(ATCODER.standings.data[i].user_id === my_user_id){
-        my_rank = i;
-        my_real_rank = ATCODER.standings.data[i].rank;
-        break;
-      }
-    }
+    set_my_rank();
+
     page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
   }
 }
@@ -527,10 +525,24 @@ function generate_navi(){
     });
     return div_obj;
   })();
+
+
+  //show country flag
+  var tooltip_show_country_flag = (function(){
+    var div_obj = $('<div class="checkbox" style="display:table-cell !important; padding:10px; padding-left:30px;"><label><input type="checkbox" id="show_country_flag">Country Flag</label></div>');
+    var chbox = div_obj.find('#show_country_flag');
+    if(show_country_flag) chbox.prop('checked', true);
+    chbox.change(function(){
+      show_country_flag = chbox.prop('checked');
+      GM_setValue('GM_show_country_flag', show_country_flag);
+      refresh_rank_table();
+    });
+    return div_obj;
+  })();
   
   //page
   var tooltip_pagesize = (function(){
-    var selecter = $(
+    var selector = $(
       '<div class="form-horizontal"  style="display:table-cell !important;  padding:10px;">' +
       '<label  style="display:inline !important;  padding:10px;">' + 
       'Page Size' + 
@@ -545,18 +557,18 @@ function generate_navi(){
       '</select>' +
       '</div>'
     );
-    selecter.find('option[value=' + page_size + ']').prop('selected', true);
+    selector.find('option[value=' + page_size + ']').prop('selected', true);
 
-    selecter.find('#selbox_pagesize').change( function(){
+    selector.find('#selbox_pagesize').change( function(){
       page_size = Number( $('#selbox_pagesize option:selected').val() );
       GM_setValue('GM_page_size', page_size);
       location.reload();
     });
-    return selecter;
+    return selector;
   })();
 
   var tooltip_country_filter = (function(){
-    var selecter = $(
+    var selector = $(
       '<div class="form-horizontal"  style="display:table-cell !important;  padding:10px;">' +
       '<label  style="display:inline !important;  padding:10px;">' + 
       'Country' + 
@@ -767,14 +779,19 @@ function generate_navi(){
     );
 
     for(var i = 0; i<my_standings_data.length; i++){
-      selecter.find('#country_filter > option[value="' + my_standings_data[i].country + '"]').removeAttr("hidden");
+      selector.find('#country_filter > option[value="' + my_standings_data[i].country + '"]').removeAttr("hidden");
     }
 
-    selecter.find('#country_filter').change( function(){
+    if( 'me' in ATCODER.standings === true){
+      var country_name = selector.find('#country_filter > option[value="' + ATCODER.standings.me.country + '"]').text();
+      selector.find("#country_filter").prepend('<option value="' + ATCODER.standings.me.country + '">' + country_name + '</option>');
+    }
+
+    selector.find('#country_filter').change( function(){
       refresh_rank_table();
       generate_page_footer();
     });
-    return selecter;
+    return selector;
   })();
   
   //my standing and scroll link
@@ -825,12 +842,15 @@ function generate_navi(){
   if(my_user_id !== 0){
     navi.append(tooltip_scroll_to_my_standing);
   }
-  navi.append(tooltip_reload_standings);
-  navi.append(tooltip_auto_reloading);
+  if(contest_ended === false) navi.append(tooltip_reload_standings);
+  if(contest_ended === false) navi.append(tooltip_auto_reloading);
 
   navi.append(tooltip_friend_standings);
   navi.append(tooltip_emphasize_friend);
   navi.append(tooltip_rating_color);
+
+  //navi.append(tooltip_show_country_flag);
+
   navi.append(tooltip_country_filter);
   navi.append(tooltip_pagesize);
   
@@ -894,21 +914,13 @@ function reload_standings(){
     }
     
     $('a#reload_standings_navi').text('Updating...');
-    
-    //自分の順位取得
-    if(my_user_id !== 0){
-      //自分の順位を取得
-      for(var i = 0; i<ATCODER.standings.data.length; i++){
-        if(ATCODER.standings.data[i].user_id === my_user_id){
-          my_rank = i;
-          my_real_rank = ATCODER.standings.data[i].rank;
-          break;
-        }
-      }
-      //page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
-      generate_page_footer();
-    }
 
+    set_country_filter( $('#country_filter option:selected').val() );
+
+    //自分の順位取得
+    set_my_rank();
+
+    generate_page_footer();
     //順位表を更新
     refresh_rank_table();
     
@@ -929,8 +941,22 @@ function reload_standings(){
 
 }
 
+function set_my_rank(){
+  if(my_user_id !== 0){
+    my_real_rank = ATCODER.standings.me.rank;
+    for(var i = 0; i<my_standings_data.length; i++){
+      if(my_standings_data[i].user_id === my_user_id){
+        my_rank = i;
+        break;
+      }
+    }
+  }
+}
+
 //自分の順位までスクロール
 function scroll_to_my_standing(){
+  set_my_rank();
+
   //自分のいるページへ移動
   if(page_pos !== Math.floor(my_rank/page_size)){
     page_pos = Math.floor(my_rank/page_size);   //自分のいるページ
@@ -940,6 +966,9 @@ function scroll_to_my_standing(){
 
     refresh_rank_table();
   }
+
+  console.log(page_pos);
+  console.log(my_rank);
 
   //スクロール
   $('body,html').animate({scrollTop:$('.standings-me').offset().top-200}, 200, 'swing');
@@ -968,13 +997,13 @@ function get_tasks(){
 }
 
 
-function set_country_filter(cn){
-  console.log("country filter : " , cn);
-  if(cn === "none"){
+function set_country_filter(country){
+  console.log("country filter : " , country);
+  if(country === "none"){
     my_standings_data = ATCODER.standings.data;
   }else{
     my_standings_data = ATCODER.standings.data.filter(function(ele){
-      return (ele.country === cn);
+      return (ele.country === country);
     });
   }
 }
