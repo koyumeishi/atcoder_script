@@ -90,6 +90,9 @@ Greasemonkey や Tampermonkey が local strage 的なシステムを提供して
 
 ### 更新履歴<a id="update"></a>
 
+##### v0.25 2016.10.10
+-  coutry filter の先頭に表示する国を自国 -> 二番目に表示するよう変更
+
 ##### v0.24 2016.10.10
 -  Your Rank の表示がリロード時に壊れてたのを修正
 

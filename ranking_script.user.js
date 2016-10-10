@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.24
+// @version     0.25
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
@@ -12,6 +12,8 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.25 2016.10.10
+//  coutry filter の先頭に表示する国を自国 -> 二番目に表示するよう変更
 // v0.24 2016.10.10
 //  Your Rank の表示がリロード時に壊れてたのを修正
 // v0.23 2016.10.02
@@ -116,7 +118,7 @@ function contentInjector(source) {
 contentInjector( function main(){
 
 var updated_date = "2016.10.10";
-var atcoder_custom_standings_version = "0.24";
+var atcoder_custom_standings_version = "0.25";
 
 //自分のuser_id
 var my_user_id = 0;
@@ -576,7 +578,6 @@ function generate_navi(){
       'Country' + 
       '</label>' +
       '<select id="country_filter" class="input-small span2">' + 
-      '      <option value="none" selected>-</option>' + 
       '      <option value="AF" hidden>Afghanistan</option>' + 
       '      <option value="AL" hidden>Albania</option>' + 
       '      <option value="DZ" hidden>Algeria</option>' + 
@@ -788,6 +789,7 @@ function generate_navi(){
       var country_name = selector.find('#country_filter > option[value="' + ATCODER.standings.me.country + '"]').text();
       selector.find("#country_filter").prepend('<option value="' + ATCODER.standings.me.country + '">' + country_name + '</option>');
     }
+    selector.find("#country_filter").prepend('<option value="none" selected>-</option>');
 
     selector.find('#country_filter').change( function(){
       refresh_rank_table();
