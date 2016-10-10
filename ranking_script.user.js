@@ -3,7 +3,7 @@
 // @namespace   koyumeishi_scripts_AtCoderCustomStandings
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
-// @version     0.23
+// @version     0.24
 // @author      koyumeishi
 // @grant       GM_setValue
 // @grant       GM_getValue
@@ -12,6 +12,8 @@
 // ==/UserScript==
 
 // 更新履歴
+// v0.24 2016.10.10
+//  Your Rank の表示がリロード時に壊れてたのを修正
 // v0.23 2016.10.02
 //  country filter の先頭に表示する国を自国へ変更
 //  country filter ON時に自分の順位へ移動できなかったバグを解消
@@ -113,8 +115,8 @@ function contentInjector(source) {
 //main関数でwrappingしたscript群をhtmlにinjectする
 contentInjector( function main(){
 
-var updated_date = "2016.10.02";
-var atcoder_custom_standings_version = "0.23";
+var updated_date = "2016.10.10";
+var atcoder_custom_standings_version = "0.24";
 
 //自分のuser_id
 var my_user_id = 0;
@@ -943,9 +945,9 @@ function reload_standings(){
 
 function set_my_rank(){
   if(my_user_id !== 0){
-    my_real_rank = ATCODER.standings.me.rank;
     for(var i = 0; i<my_standings_data.length; i++){
       if(my_standings_data[i].user_id === my_user_id){
+        my_real_rank = my_standings_data[i].rank;
         my_rank = i;
         break;
       }

@@ -90,6 +90,9 @@ Greasemonkey や Tampermonkey が local strage 的なシステムを提供して
 
 ### 更新履歴<a id="update"></a>
 
+##### v0.24 2016.10.10
+-  Your Rank の表示がリロード時に壊れてたのを修正
+
 ##### v0.23 2016.10.02
 -  country filter の先頭に表示する国を自国へ変更
 -  country filter ON時に自分の順位へ移動できなかったバグを解消
