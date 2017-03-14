@@ -1,0 +1,19 @@
+#fixed-server-timer {
+    display: none !important;
+}
+
+.nav.nav-tabs {
+    display: none !important;
+}
+
+.navbar.navbar-fixed-top {
+    display: none !important;
+}
+
+footer {
+    display: none !important;
+}
+
+.btn.btn-primary.btn-large {
+    display: none !important;
+}

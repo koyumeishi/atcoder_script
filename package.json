@@ -1,0 +1,39 @@
+{
+  "name": "atcodercustomstandings",
+  "version": "1.0.0",
+  "description": "[@koyumeishi_](https://twitter.com/koyumeishi_) の AtCoder用 UserScript置き場  \r Github Pagesで公開しています。 githubは[こちら](https://github.com/koyumeishi/atcoder_script)",
+  "main": "modal.user.js",
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.23.0",
+    "babelify": "^7.3.0"
+  },
+  "scripts": {
+    "build": "browserify src\\main.js -t babelify -o bin\\main.js -d",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koyumeishi/atcoder_script.git"
+  },
+  "author": "koyumeishi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/koyumeishi/atcoder_script/issues"
+  },
+  "homepage": "https://github.com/koyumeishi/atcoder_script#readme",
+  "bin": {
+    "atcodercustomstandings": "app.user.js"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  }
+}
