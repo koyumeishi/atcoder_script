@@ -1,6 +1,5 @@
 # AtCoder Scripts
 [@koyumeishi_](https://twitter.com/koyumeishi_) の AtCoder用 UserScript置き場  
-Github Pagesで公開しています。 githubは[こちら](https://github.com/koyumeishi/atcoder_script)
 
 ##目録
 * [AtCoderCustomStandings](#AtCoderCustomStandings)
@@ -9,86 +8,48 @@ Github Pagesで公開しています。 githubは[こちら](https://github.com/
 ## AtCoderCustomStandings <a id="AtCoderCustomStandings"></a>
 [https://koyumeishi.github.io/atcoder_script/ranking_script.user.js](https://koyumeishi.github.io/atcoder_script/ranking_script.user.js)
 
-* [はじめに](#hajimeni)
-* [更新履歴](#update)
-* [インストールとか](#install)
-* [使用方法](#usage)
-* [その他](#other)
+* [Introduction](#introduction)
+* [Installation](#install)
+* [Usage](#usage)
+* [Update](#update)
 
 ---
 
-### はじめに<a id="hajimeni"></a>
+### Introduction<a id="introduction"></a>
 AtCoderの順位表をカスタマイズして表示する非公式UserScriptです。 FirefoxのGreasemonkeyとGoogleChromeのTampermonkeyで動作確認しています。 javascript素人が書いたので予期せぬバグや、AtCoder側の仕様変更により使えなくなる場合があるかも知れません。 大切なコンテストでの使用は自己責任でお願いします。  
-zerokugiさんのchrome拡張機能 [Atcoder Friend Standings](https://chrome.google.com/webstore/detail/atcoder-friend-standings/apoegnjnclihjjlighifiojbocjnbbgm) とは競合してしまうのでご注意ください。
+他の順位表のページをいじる拡張機能やuserscriptとは競合する場合があります。  
 
-### インストールとか<a id="install"></a>
+主な機能
+
+* friendだけの順位表を表示
+* 1ページ当たりの表示件数変更(大量に表示すると重いです)
+* 順位表自動更新
+* 国、レーティング、名前によるフィルター
+* 統計情報の表示（順位表から読み取れる分だけなので公式のstatsとは差異が生じます）
+
+### Installation<a id="install"></a>
 
  1. Greasemonkey(Firefox)やTampermonkey(GoogleChrome)やらをブラウザにインストールしておく
  2. 次のリンクを開くとインストールするか尋ねられると思います  
      [https://koyumeishi.github.io/atcoder_script/ranking_script.user.js](https://koyumeishi.github.io/atcoder_script/ranking_script.user.js)
 
-### 使用方法<a id="usage"></a>
+### Usage<a id="usage"></a>
     http://*.contest.atcoder.jp/standings*
 にアクセスすると、カスタマイズされた順位表が表示されます。  
 
 > ![image1](img/img1.png)  
 
 ---
-Friends Standings  
+Stats  
 > ![image2](img/img2.png)  
 
----
-Country Filter  
-> ![image3](img/img3.png)  
+friendの登録/解除は、順位表のユーザー名をクリックして出てきたメニュー、または Settings から設定可能です。  
+friends list等の設定はブラウザに保存されます。
 
+### Update<a id="update"></a>
 
-1. friendだけの順位表を表示
-2. ユーザー名をAtCoderIDで表示
-3. Rating(β)に基づきユーザー名を色づけ
-4. 1ページ当たりの表示件数(20,50,100,200,500,全件)
-5. 順位表自動更新
-6. 国別フィルター
-
-こんな感じのカスタマイズが出来ます。全件表示は結構重めなので非推奨です。  
-friendの登録/解除は、登録/解除したいユーザーをクリックして出てきたメニューから行ってください。  
-friend list等の設定はブラウザに保存されます。
-
-### その他<a id="other"></a>
-
-<!--
-#### ~~レーティングについて~~
-~~レーティングはARC(月1～月2ぐらい)のときに更新され、また、そもそもレーティング付きの人がそんなにいないので、手動でクローラ走らせて更新し、scriptに埋め込んでいます(5級まで。14KBほど)。 更新が遅かったら [@koyumeishi_](https://twitter.com/koyumeishi_)に催促してください。~~
-~~クロールして取得したレーティング情報は [csv](https://koyumeishi.github.io/atcoder_script/rating.csv) や [json](https://koyumeishi.github.io/atcoder_script/rating.json) でも公開しています。何かの役に立てられる方はお使いください。~~
-
-~~レーティングの色分け基準や配色に関しては特に考えて決めていません。~~
-
->[function append_user_color_css()](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L360)  
-
-~~に配色の設定、~~
-
->[function get_color(user)](https://github.com/koyumeishi/atcoder_script/blob/gh-pages/ranking_script.user.js#L387)
-
-~~に色分け基準レートの設定があります。~~
-
-**AtCoderのレーティングシステム一新に伴って、順位表からレーティングが取得できるようになったため廃止しました。 GitHub上に過去のレーティングは残しておきます。**
--->
-
-#### friend listについて
-Greasemonkey や Tampermonkey が local strage 的なシステムを提供してくれているので、そこに保存しています。(参考: [http://wiki.greasespot.net/GM_getValue](http://wiki.greasespot.net/GM_getValue) )
-
-    {name:1, name:1, ... , name:1}
-
-のような形のjson文字列で保管しています。(値を1にしているのは連想配列で何らかの値を持たせておく必要があったため。評価にはkeyの存在判定しか使っていないのでnull等でも多分大丈夫)  
-順位表のページでブラウザのコンソールから
-
-    GM_getValue('GM_friend_list', null)
-と叩くと多分見えます。
-
-    GM_setValue('GM_friend_list', json文字列)
-で更新できるので、手動でいじろうと思えばいじれます。
-
-
-### 更新履歴<a id="update"></a>
+##### v1.0.0 2017.06.16
+-  React.js に書き換え。 フィルタ機能、統計機能等の追加。
 
 ##### v0.25 2016.10.10
 -  coutry filter の先頭に表示する国を自国 -> 二番目に表示するよう変更

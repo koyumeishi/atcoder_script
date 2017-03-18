@@ -1,41 +1,64 @@
 export default class AppSettings{
-  constructor(){
+  constructor( load ){
     //options
-    this.highlight_friends = true;
-    this.show_rating_color = true;
-    this.show_handle_name  = true;
-    this.filter_by_friends = false;
-    this.filter_by_country = false;
-    this.filter_by_rating  = false;
-    this.page_size         = 50;
+    this.highlightFriends   = true;
+    this.disableRatingColor = false;
+    this.displayNameStyle   = "user_screen_name";
+    this.pageSize           = 50;
+    this.showNationalFlag   = true;
 
-    this.load();
+    this.filterCountry    = null;
+    this.filterRating     = new Set([1,2,3,4,5,6,7,8,9]);
+
+    if(load === true) this.load();
+
+    //reset temporary options
+    this.filterByFriends = false;
+    this.filterByCountry = false;
+    this.filterByRating  = false;
+    this.filterByName    = false;
+    this.filterName      = "";
+
+    this.sortingEnabled = false;
+    // "rank", "user_screen_name", "rating", "country", "competitions", "task{i}"
+    this.sortingKey     = "rank";
+    this.sortingOrder   = "ascending";
+
+    this.load.bind(this);
+    this.save.bind(this);
   }
 
   load(){
     //load
-    const settings = JSON.parse( GM_getValue('settings', '{}') );
-    if( settings === null ) return;
-    if("highlight_friends" in settings) this.highlight_friends = settings.highlight_friends;
-    if("show_rating_color" in settings) this.show_rating_color = settings.show_rating_color;
-    if("show_handle_name"  in settings) this.show_handle_name  = settings.show_handle_name;
-    if("filter_by_friends" in settings) this.filter_by_friends = settings.filter_by_friends;
-    if("filter_by_country" in settings) this.filter_by_country = settings.filter_by_country;
-    if("filter_by_rating" in settings)  this.filter_by_rating  = settings.filter_by_rating;
-    if("page_size" in settings)         this.page_size         = settings.page_size;
+    try{
+        const settings = JSON.parse( GM_getValue('settings', '{}') );
+        Object.assign( this, settings);
+        if( this.filterRating === undefined) this.filterRating = new Set([1,2,3,4,5,6,7,8,9]);
+        else this.filterRating = new Set(this.filterRating);
+
+        console.log("loaded : settings");
+        console.log(this);
+    }catch(e){
+        console.log("faild to load settings");
+        console.log(e);
+    }
   }
   save(){
     //save
-    const settings = {
-      "highlight_friends" : this.highlight_friends,
-      "show_rating_color" : this.show_rating_color,
-      "show_handle_name"  : this.show_handle_name,
-      "filter_by_friends" : this.filter_by_friends,
-      "filter_by_country" : this.filter_by_country,
-      "filter_by_rating"  : this.filter_by_rating,
-      "page_size"         : this.page_size
-    };
+    this.filterRating = [...this.filterRating];
+
+    const settings = Object.assign({}, this);
     const str = JSON.stringify( settings );
+
+    this.filterRating = new Set(this.filterRating);
+
     GM_setValue('settings', str);
+
+    console.log("saved : settings");
+    console.log(str);
+  }
+
+  isFiltersEnabled(){
+    return this.filterByFriends || this.filterByCountry || this.filterByRating || this.filterByName;
   }
 }

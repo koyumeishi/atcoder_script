@@ -1,48 +1,54 @@
 export default class FriendsList{
-  constructor(){
+  constructor( load ){
     this.friends = new Set();
-    this.load();
+    if(load === true) this.load();
+
+    //this.add("camypaper");
   }
 
   load(){
     //load
     //friend list object (old version)
-    let friends_old = JSON.parse( GM_getValue('GM_friend_list', 'null') );
-    if(friends_old !== null){
-      for(let handle in friends_old){
-        this.friends.add(handle);
-      }
+    let friendsOld = JSON.parse( GM_getValue('GM_friend_list', 'null') );
+    if(friendsOld !== null){
+      this.fiends = new Set( Object.keys(friendsOld) );
       GM_deleteValue( 'GM_friend_list' );
       this.save();
     }
     
     //friend list array (new version)
-    let friends = JSON.parse( GM_getValue('friends_list', 'null') );
-    if(friends !== null){
-      friends.forEach( handle => this.friends.add(handle) );
-    }
+    this.friends = new Set(JSON.parse( GM_getValue('friendsList', '[]') ));
+
+    console.log("loaded : friends list");
+    console.log(this.friends);
   }
 
   save(){
-    let friends_list = new Array();
-    this.friends.forEach( handle => friends_list.push(handle) );
-    let str = JSON.stringify(this.friends_list);
-
+    let str = JSON.stringify([...this.friends]);
     //save
-    GM_setValue('friends_list', str);
+    GM_setValue('friendsList', str);
+
+    console.log("saved : friends list");
+    console.log(str);
   }
 
+  //[names...]
   add(handle){
-    this.friends.add( handle );
+    handle.forEach( (name) => this.friends.add(name) );
     this.save();
   }
 
   remove(handle){
-    this.friends.delete( handle );
+    handle.forEach( (name) => this.friends.delete(name) );
     this.save();
   }
 
-  is_friend(handle){
+
+  isFriend(handle){
     return this.friends.has( handle );
+  }
+
+  getList(){
+    return [...this.friends];
   }
 }

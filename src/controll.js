@@ -1,46 +1,8 @@
 import Stats from './stats.js'
-
-class Filter extends React.Component {
-  constructor(props){
-    super(props);
-  }
-
-  render(){
-    const by_friend = "friend filter";
-    const by_rating = "rating filter";
-    const by_country = "country filter";
-    return (
-      <div>
-        {by_friend}
-        {by_rating}
-        {by_country}
-      </div>
-    );
-  }
-}
-
-class Settings extends React.Component {
-  constructor(props){
-    super(props);
-  }
-
-  render(){
-    const page_size = "page size setting";
-    const show_handle = "screen name setting";
-    const rating_color = "showing color setting";
-    const highlight_friends = "highlight friends setting";
-    const friends = "friends setting";
-    return(
-      <div>
-        {page_size}
-        {show_handle}
-        {rating_color}
-        {highlight_friends}
-        {friends}
-      </div>
-    );
-  }
-}
+import Filter from './filter.js'
+import Settings from './settings.js'
+import Sorting from './sorting.js'
+import Reloading from './reload.js'
 
 export default class Controll extends React.Component {
   constructor(props){
@@ -49,10 +11,40 @@ export default class Controll extends React.Component {
 
   render(){
     let ret = (
-      <div>
-        <Filter />
-        <Settings />
-        <Stats />
+      <div style={{display:"grid", gridTemplateRows:"1fr", gridTemplateColumns:"auto auto auto auto auto"}}>
+        <div style={{gridRow:"1/2", gridColumn:"1/2", padding:"4px"}}>
+          <Reloading
+            updateFunc={this.props.updateFunc}
+          />
+        </div>
+        <div style={{gridRow:"1/2", gridColumn:"2/3", padding:"4px"}}>
+          <Filter
+            settings={this.props.settings}
+            settingsUpdateFunc={this.props.settingsUpdateFunc}
+            getActiveCountries={this.props.getActiveCountries}
+          />
+        </div>
+        <div style={{gridRow:"1/2", gridColumn:"3/4", padding:"4px"}}>
+          <Sorting
+            settings={this.props.settings}
+            contest={this.props.contest}
+            settingsUpdateFunc={this.props.settingsUpdateFunc}
+          />
+        </div>
+        <div style={{gridRow:"1/2", gridColumn:"4/5", padding:"4px"}}>
+          <Stats
+            standings={this.props.standings}
+            contest={this.props.contest}
+          />
+        </div>
+        <div style={{gridRow:"1/2", gridColumn:"5/6", padding:"4px"}}>
+          <Settings
+            settings={this.props.settings}
+            settingsUpdateFunc={this.props.settingsUpdateFunc}
+            friends={this.props.friends}
+            friendsUpdateFunc={this.props.friendsUpdateFunc}
+          />
+        </div>
       </div>
     );
 

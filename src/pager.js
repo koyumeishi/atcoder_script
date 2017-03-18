@@ -2,12 +2,20 @@ class PageButton extends React.Component{
   constructor(props){
     super();
   }
+
+  shouldComponentUpdate( nextProps ){
+    if( this.props.current !== nextProps.current ) return true;
+    if( this.props.me !== nextProps.me ) return true;
+    return false;
+  }
+
   render(){
     const p = this.props.page;
-    if( this.props.current === true ){
-      return (<div>{p + 1}</div>);
+
+    if( this.props.current === p ){
+      return (<li className={`li-pagination active ${this.props.me === true ? "active-me":""}`}><a>{p + 1}</a></li>);
     }else{
-      return (<div onClick={this.props.onClickFunc} data-page={p}>{p + 1}</div>);
+      return (<li className={`li-pagination ${this.props.me === true ? "me":""}`} ><a onClick={this.props.onClickFunc} data-page={p} href="#">{p + 1}</a></li>);
     }
   }
 }
@@ -16,35 +24,49 @@ export default class Pager extends React.Component {
   /**
   * @param {number} current current page (0-indexed)
   * @param {number} total   total page
+  * @param {number} me      page where i am
   * @param {function} onClickFunc 
   */
   constructor(props){
     super(props);
   }
 
-  render(){
-    let res = new Array();
-    const page_begin  = Math.max(0, this.props.current - 4);
-    const page_end    = Math.min(this.props.total, this.props.current+5);
+  shouldComponentUpdate( nextProps ){
+    if( this.props.current !== nextProps.current ) return true;
+    if( this.props.total !== nextProps.total ) return true;
+    if( this.props.me !== nextProps.me ) return true;
+    return false;
+  }
 
-    if( page_begin !== 0 ){
-      const p = 0;
-      res.push( <PageButton current={p===this.props.current} page={p} onClickFunc={this.props.onClickFunc}/> );
-      if( page_begin !== p+1 ){
-        res.push( <div>{"..."}</div> );
+  render(){
+    let showingPages = new Array();
+    for(let page=0; page<this.props.total; page++){
+      if(page === 0 || page === this.props.total-1 || page===this.props.me || Math.abs(this.props.current - page) <= 5 ){
+        showingPages.push(page);
       }
     }
-    for(let i=page_begin; i<page_end; i++){
-      res.push( <PageButton current={i===this.props.current} page={i} onClickFunc={this.props.onClickFunc}/> );
-    }
-    if( page_end !== this.props.total ){
-      const p = this.props.total-1;
-      if( page_end !== p ){
-        res.push( <div>{"..."}</div> );
+
+    let res = new Array();
+    let blankCount = 0;
+    for(let i=0; i<showingPages.length; i++){
+      if(i > 0 && showingPages[i] - showingPages[i-1] > 1){
+        if( showingPages[i] - showingPages[i-1] === 2 ){
+          res.push( <PageButton current={this.props.current}
+                                page={showingPages[i]-1}
+                                key={showingPages[i]-1}
+                                onClickFunc={this.props.onClickFunc}
+                                me={showingPages[i]-1===this.props.me} /> );
+        }else{
+          res.push( <li className="li-pagination disabled" key={`page-blank-${blankCount++}`}><a>{"..."}</a></li> );
+        }
       }
-      res.push( <PageButton current={p===this.props.current} page={p} onClickFunc={this.props.onClickFunc}/> );
+      res.push( <PageButton current={this.props.current}
+                            page={showingPages[i]}
+                            key={showingPages[i]}
+                            onClickFunc={this.props.onClickFunc}
+                            me={showingPages[i]===this.props.me} /> );
     }
-    
-    return (<div>{res}</div>);
+
+    return (<div className="pagination pagination-centered"><ul>{res}</ul></div>);
   }
 }
