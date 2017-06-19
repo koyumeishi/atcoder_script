@@ -6,7 +6,7 @@
 * [AtCoderModalMoudarui](#AtCoderModalMoudarui)
 
 ## AtCoderCustomStandings <a id="AtCoderCustomStandings"></a>
-[https://koyumeishi.github.io/atcoder_script/ranking_script.user.js](https://koyumeishi.github.io/atcoder_script/ranking_script.user.js)
+[http://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js](http://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js)
 
 * [Introduction](#introduction)
 * [Installation](#install)
@@ -32,7 +32,7 @@ AtCoderの順位表をカスタマイズして表示する非公式UserScriptで
 
  1. Greasemonkey(Firefox)やTampermonkey(GoogleChrome)やらをブラウザにインストールしておく
  2. 次のリンクを開くとインストールするか尋ねられると思います  
-     [https://koyumeishi.github.io/atcoder_script/ranking_script.user.js](https://koyumeishi.github.io/atcoder_script/ranking_script.user.js)
+     [http://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js](http://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js)
 
 ### Usage<a id="usage"></a>
     http://*.contest.atcoder.jp/standings*

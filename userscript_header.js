@@ -4,7 +4,7 @@
 // @description customize your standings on atcoder
 // @author      koyumeishi
 // @include     http://*.contest.atcoder.jp/standings*
-// @downloadURL https://koyumeishi.github.io/atcoder_script/ranking_script.user.js
+// @downloadURL http://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js
 // @version     __version__
 // @run-at      document-idle
 // @require     https://unpkg.com/react@15/dist/react.js
