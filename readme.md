@@ -12,6 +12,7 @@
 * [Installation](#install)
 * [Usage](#usage)
 * [Release Notes](release_notes.md)
+* [License](#license)
 
 ---
 
@@ -45,6 +46,9 @@ Stats
 
 friendの登録/解除は、順位表のユーザー名をクリックして出てきたメニュー、または Settings から設定可能です。  
 friends list等の設定はブラウザに保存されます。
+
+### License<a id="license"></a>
+MIT
 
 
 ## AtCoderModalMoudarui <a id="AtCoderModalMoudarui"></a>

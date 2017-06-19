@@ -20,6 +20,9 @@
 // @grant       GM_addStyle 
 // ==/UserScript==
 
+// LICENSE
+// MIT
+
 const accsVersion = "__version__";
 
 console.log( "AtCoderCustomStandings ver.", accsVersion);

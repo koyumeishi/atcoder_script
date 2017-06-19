@@ -2,7 +2,6 @@
   "name": "atcodercustomstandings",
   "version": "1.0.0",
   "description": "atcodercustomstandings",
-  "main": "modal.user.js",
   "dependencies": {
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
@@ -23,7 +22,6 @@
     "url": "git+https://github.com/koyumeishi/atcoder_script.git"
   },
   "author": "koyumeishi",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/koyumeishi/atcoder_script/issues"
   },

@@ -911,7 +911,7 @@ var FriendsList = function () {
       //friend list object (old version)
       var friendsOld = JSON.parse(GM_getValue('GM_friend_list', 'null'));
       if (friendsOld !== null) {
-        this.fiends = new Set(Object.keys(friendsOld));
+        this.friends = new Set(Object.keys(friendsOld));
         GM_deleteValue('GM_friend_list');
         this.save();
       }
