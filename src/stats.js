@@ -1,4 +1,4 @@
-import StatsSummery from './stats/summery.js'
+import StatsSummary from './stats/summary.js'
 import StatsTask from './stats/task.js'
 import Modal from './modal.js'
 
@@ -25,15 +25,15 @@ class StatsContent extends React.Component{
 
     let component;
     if(this.state.page === this.props.contest.numTasks){
-      tab.push( <li className="active" key={`${this.props.contest.numTasks}`}><a href="#">Summery</a></li> );
+      tab.push( <li className="active" key={`${this.props.contest.numTasks}`}><a href="#">Summary</a></li> );
       component = (
-        <StatsSummery standings={this.props.standings}
+        <StatsSummary standings={this.props.standings}
                       contest={this.props.contest} />
       );
     }else{
       tab.push( <li key={`${this.props.contest.numTasks}`}><a href="#" onClick={ ()=>{
         this.setState({page:this.props.contest.numTasks});
-      } }>Summery</a></li> );
+      } }>Summary</a></li> );
       component = (
         <StatsTask task={this.props.contest.tasks[this.state.page]}
                    standings={this.props.standings}

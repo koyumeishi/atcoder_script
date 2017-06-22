@@ -1,7 +1,7 @@
 import {rating} from '../util.js'
 import ChartComponent from './chartComponent.js'
 
-export default class StatsSummery extends React.Component{
+export default class StatsSummary extends React.Component{
   constructor(props){
     super(props);
     this.genDataset.bind(this);
@@ -81,7 +81,7 @@ export default class StatsSummery extends React.Component{
         <p>
           {this.props.contest.contestEnded ? <span>This stats is unofficial. You can check the official stats <a href="./statistics" target="_blank">here</a>.</span>: null}
         </p>
-        <ChartComponent canvasId="chartSummery" dataset={this.genDataset()} width="500" height="280"/>
+        <ChartComponent canvasId="chartSummary" dataset={this.genDataset()} width="500" height="280"/>
       </div>
     );
   }

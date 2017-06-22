@@ -2527,9 +2527,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _summery = require('./stats/summery.js');
+var _summary = require('./stats/summary.js');
 
-var _summery2 = _interopRequireDefault(_summery);
+var _summary2 = _interopRequireDefault(_summary);
 
 var _task = require('./stats/task.js');
 
@@ -2603,10 +2603,10 @@ var StatsContent = function (_React$Component) {
           React.createElement(
             'a',
             { href: '#' },
-            'Summery'
+            'Summary'
           )
         ));
-        component = React.createElement(_summery2.default, { standings: this.props.standings,
+        component = React.createElement(_summary2.default, { standings: this.props.standings,
           contest: this.props.contest });
       } else {
         tab.push(React.createElement(
@@ -2617,7 +2617,7 @@ var StatsContent = function (_React$Component) {
             { href: '#', onClick: function onClick() {
                 _this2.setState({ page: _this2.props.contest.numTasks });
               } },
-            'Summery'
+            'Summary'
           )
         ));
         component = React.createElement(_task2.default, { task: this.props.contest.tasks[this.state.page],
@@ -2681,7 +2681,7 @@ var Stats = function (_React$Component2) {
 
 exports.default = Stats;
 
-},{"./modal.js":9,"./stats/summery.js":17,"./stats/task.js":18}],16:[function(require,module,exports){
+},{"./modal.js":9,"./stats/summary.js":17,"./stats/task.js":18}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2774,19 +2774,19 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var StatsSummery = function (_React$Component) {
-  _inherits(StatsSummery, _React$Component);
+var StatsSummary = function (_React$Component) {
+  _inherits(StatsSummary, _React$Component);
 
-  function StatsSummery(props) {
-    _classCallCheck(this, StatsSummery);
+  function StatsSummary(props) {
+    _classCallCheck(this, StatsSummary);
 
-    var _this = _possibleConstructorReturn(this, (StatsSummery.__proto__ || Object.getPrototypeOf(StatsSummery)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (StatsSummary.__proto__ || Object.getPrototypeOf(StatsSummary)).call(this, props));
 
     _this.genDataset.bind(_this);
     return _this;
   }
 
-  _createClass(StatsSummery, [{
+  _createClass(StatsSummary, [{
     key: 'genDataset',
     value: function genDataset() {
       var labels = _util.rating.lb.slice(1).map(function (r) {
@@ -2888,15 +2888,15 @@ var StatsSummery = function (_React$Component) {
             '.'
           ) : null
         ),
-        React.createElement(_chartComponent2.default, { canvasId: 'chartSummery', dataset: this.genDataset(), width: '500', height: '280' })
+        React.createElement(_chartComponent2.default, { canvasId: 'chartSummary', dataset: this.genDataset(), width: '500', height: '280' })
       );
     }
   }]);
 
-  return StatsSummery;
+  return StatsSummary;
 }(React.Component);
 
-exports.default = StatsSummery;
+exports.default = StatsSummary;
 
 },{"../util.js":20,"./chartComponent.js":16}],18:[function(require,module,exports){
 'use strict';
