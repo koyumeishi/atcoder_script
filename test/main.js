@@ -2774,16 +2774,610 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var StatsSummary = function (_React$Component) {
-  _inherits(StatsSummary, _React$Component);
+var TopOfColors = function (_React$Component) {
+  _inherits(TopOfColors, _React$Component);
+
+  function TopOfColors(props) {
+    _classCallCheck(this, TopOfColors);
+
+    return _possibleConstructorReturn(this, (TopOfColors.__proto__ || Object.getPrototypeOf(TopOfColors)).call(this, props));
+  }
+
+  _createClass(TopOfColors, [{
+    key: 'render',
+    value: function render() {
+      var data = new Array(_util.rating.lb.length);
+      data.fill(undefined);
+
+      this.props.standings.forEach(function (s) {
+        if (s.elapsed_time === "0") {
+          var participating = false;
+          s.tasks.forEach(function (t) {
+            if (t.score !== undefined) participating = true;
+          });
+          if (participating === false) return;
+        }
+
+        var level = _util.rating.getLevel(s.rating);
+        if (data[level] === undefined) {
+          data[level] = {
+            name: s.user_screen_name,
+            rating: s.rating,
+            rank: s.rank,
+            score: Number(s.score) / 100,
+            time: Number(s.elapsed_time),
+            penalty: Number(s.penalty),
+            failure: Number(s.failure)
+          };
+        }
+      });
+
+      // console.log(data);
+
+      data = data.slice(1);
+
+      var comp = data.map(function (d, idx) {
+        if (d === undefined) {
+          return React.createElement(
+            'tr',
+            { key: idx },
+            React.createElement(
+              'td',
+              null,
+              React.createElement(
+                'span',
+                { style: { color: _util.rating.colorOriginal[idx + 1] } },
+                _util.rating.lb[idx + 1],
+                ' - '
+              )
+            ),
+            React.createElement(
+              'td',
+              null,
+              ' - '
+            ),
+            React.createElement(
+              'td',
+              null,
+              ' - '
+            ),
+            React.createElement(
+              'td',
+              null,
+              ' - '
+            ),
+            React.createElement(
+              'td',
+              null,
+              ' - '
+            )
+          );
+        } else {
+          return React.createElement(
+            'tr',
+            { key: idx },
+            React.createElement(
+              'td',
+              null,
+              React.createElement(
+                'span',
+                { style: { color: _util.rating.colorOriginal[idx + 1] } },
+                _util.rating.lb[idx + 1],
+                ' - '
+              )
+            ),
+            React.createElement(
+              'td',
+              null,
+              _util.rating.generateColoredName(d.name, d.rating)
+            ),
+            React.createElement(
+              'td',
+              null,
+              d.rank
+            ),
+            React.createElement(
+              'td',
+              null,
+              d.score,
+              d.failure != 0 ? React.createElement(
+                'span',
+                null,
+                ' (',
+                d.failure,
+                ')'
+              ) : ""
+            ),
+            React.createElement(
+              'td',
+              null,
+              Math.floor(d.time / 60),
+              ' min ',
+              d.time % 60,
+              ' sec (',
+              Math.floor(d.penalty / 60),
+              ' min ',
+              d.penalty % 60,
+              ' sec)'
+            )
+          );
+        }
+      });
+
+      comp.reverse();
+
+      return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'h3',
+          null,
+          'Top of Colors'
+        ),
+        React.createElement(
+          'table',
+          { className: 'table table-bordered table-condensed' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                null,
+                'Rating'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Top'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Rank'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Score (Penalty)'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Time (Penalty)'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            comp
+          )
+        )
+      );
+    }
+  }]);
+
+  return TopOfColors;
+}(React.Component);
+
+var TopOfCountries = function (_React$Component2) {
+  _inherits(TopOfCountries, _React$Component2);
+
+  function TopOfCountries(props) {
+    _classCallCheck(this, TopOfCountries);
+
+    var _this2 = _possibleConstructorReturn(this, (TopOfCountries.__proto__ || Object.getPrototypeOf(TopOfCountries)).call(this, props));
+
+    _this2.state = {
+      sortingKey: "rank",
+      ascending: true
+    };
+    return _this2;
+  }
+
+  _createClass(TopOfCountries, [{
+    key: 'render',
+    value: function render() {
+      var _this3 = this;
+
+      var data = {};
+
+      this.props.standings.forEach(function (s) {
+        if (s.elapsed_time === "0") {
+          var participating = false;
+          s.tasks.forEach(function (t) {
+            if (t.score !== undefined) participating = true;
+          });
+          if (participating === false) return;
+        }
+
+        var country = s.country;
+
+        if (data[country] === undefined) {
+          data[country] = {
+            name: s.user_screen_name,
+            country: s.country,
+            rating: s.rating,
+            rank: s.rank,
+            score: Number(s.score) / 100,
+            time: Number(s.elapsed_time),
+            penalty: Number(s.penalty),
+            failure: Number(s.failure),
+            scoreTime: Number(s.score) * 1000000000 - Number(s.penalty)
+          };
+        }
+      });
+
+      data = Object.keys(data).map(function (c) {
+        return data[c];
+      });
+
+      data.sort(function (x, y) {
+        var res = x[_this3.state.sortingKey] < y[_this3.state.sortingKey];
+        res = _this3.state.ascending ? res : !res;
+        return res ? -1 : 1;
+      });
+
+      var comp = data.map(function (d, idx) {
+        return React.createElement(
+          'tr',
+          { key: idx },
+          React.createElement(
+            'td',
+            null,
+            d.rank
+          ),
+          React.createElement(
+            'td',
+            null,
+            React.createElement('img', { src: '/img/flag/' + d.country + '.png', style: { verticalAlign: "middle", width: "16px", height: "16px" } }),
+            ' ',
+            _util.countries[d.country]
+          ),
+          React.createElement(
+            'td',
+            null,
+            _util.rating.generateColoredName(d.name, d.rating)
+          ),
+          React.createElement(
+            'td',
+            null,
+            d.score,
+            d.failure != 0 ? React.createElement(
+              'span',
+              null,
+              ' (',
+              d.failure,
+              ')'
+            ) : ""
+          ),
+          React.createElement(
+            'td',
+            null,
+            Math.floor(d.time / 60),
+            ' min ',
+            d.time % 60,
+            ' sec (',
+            Math.floor(d.penalty / 60),
+            ' min ',
+            d.penalty % 60,
+            ' sec)'
+          )
+        );
+      });
+
+      return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'h3',
+          null,
+          'Top of Countries'
+        ),
+        React.createElement(
+          'table',
+          { className: 'table table-bordered table-condensed' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this3.state.sortingKey == "rank") _this3.setState({ sortingKey: "rank", ascending: !_this3.state.ascending });else _this3.setState({ sortingKey: "rank", ascending: true });
+                  } },
+                'Rank'
+              ),
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this3.state.sortingKey == "country") _this3.setState({ sortingKey: "country", ascending: !_this3.state.ascending });else _this3.setState({ sortingKey: "country", ascending: true });
+                  } },
+                'Country'
+              ),
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this3.state.sortingKey == "name") _this3.setState({ sortingKey: "name", ascending: !_this3.state.ascending });else _this3.setState({ sortingKey: "name", ascending: true });
+                  } },
+                'Top'
+              ),
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this3.state.sortingKey == "scoreTime") _this3.setState({ sortingKey: "scoreTime", ascending: !_this3.state.ascending });else _this3.setState({ sortingKey: "scoreTime", ascending: false });
+                  } },
+                'Score (Penalty)'
+              ),
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this3.state.sortingKey == "scoreTime") _this3.setState({ sortingKey: "scoreTime", ascending: !_this3.state.ascending });else _this3.setState({ sortingKey: "scoreTime", ascending: true });
+                  } },
+                'Time (Penalty)'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            comp
+          )
+        )
+      );
+    }
+  }]);
+
+  return TopOfCountries;
+}(React.Component);
+
+var NumberOfColorContestants = function (_React$Component3) {
+  _inherits(NumberOfColorContestants, _React$Component3);
+
+  function NumberOfColorContestants(props) {
+    _classCallCheck(this, NumberOfColorContestants);
+
+    var _this4 = _possibleConstructorReturn(this, (NumberOfColorContestants.__proto__ || Object.getPrototypeOf(NumberOfColorContestants)).call(this, props));
+
+    _this4.state = {
+      sortingKey: "rating",
+      ascending: false
+    };
+    return _this4;
+  }
+
+  _createClass(NumberOfColorContestants, [{
+    key: 'render',
+    value: function render() {
+      var _this5 = this;
+
+      var data = new Array(_util.rating.lb.length);
+      for (var i = 0; i < data.length; i++) {
+        data[i] = { rating: i, contestants: 0 };
+      }
+
+      this.props.standings.forEach(function (s) {
+        if (s.elapsed_time === "0") {
+          var participating = false;
+          s.tasks.forEach(function (t) {
+            if (t.score !== undefined) participating = true;
+          });
+          if (participating === false) return;
+        }
+
+        var level = _util.rating.getLevel(s.rating);
+        data[level].contestants += 1;
+      });
+
+      data = data.slice(1);
+
+      data.sort(function (x, y) {
+        var res = x[_this5.state.sortingKey] < y[_this5.state.sortingKey];
+        res = _this5.state.ascending ? res : !res;
+        return res ? -1 : 1;
+      });
+
+      var comp = data.map(function (d, idx) {
+        return React.createElement(
+          'tr',
+          { key: idx },
+          React.createElement(
+            'td',
+            null,
+            React.createElement(
+              'span',
+              { style: { color: _util.rating.colorOriginal[d.rating] } },
+              _util.rating.lb[d.rating],
+              ' - '
+            )
+          ),
+          React.createElement(
+            'td',
+            null,
+            d.contestants
+          )
+        );
+      });
+
+      return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'h3',
+          null,
+          'Number of Contestants (Color)'
+        ),
+        React.createElement(
+          'table',
+          { className: 'table table-bordered table-condensed' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this5.state.sortingKey == "rating") _this5.setState({ sortingKey: "rating", ascending: !_this5.state.ascending });else _this5.setState({ sortingKey: "rating", ascending: false });
+                  } },
+                'Rating'
+              ),
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this5.state.sortingKey == "contestants") _this5.setState({ sortingKey: "contestants", ascending: !_this5.state.ascending });else _this5.setState({ sortingKey: "contestants", ascending: false });
+                  } },
+                'Contestants'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            comp
+          )
+        )
+      );
+    }
+  }]);
+
+  return NumberOfColorContestants;
+}(React.Component);
+
+var NumberOfCountryContestants = function (_React$Component4) {
+  _inherits(NumberOfCountryContestants, _React$Component4);
+
+  function NumberOfCountryContestants(props) {
+    _classCallCheck(this, NumberOfCountryContestants);
+
+    var _this6 = _possibleConstructorReturn(this, (NumberOfCountryContestants.__proto__ || Object.getPrototypeOf(NumberOfCountryContestants)).call(this, props));
+
+    _this6.state = {
+      sortingKey: "contestants",
+      ascending: false
+    };
+    return _this6;
+  }
+
+  _createClass(NumberOfCountryContestants, [{
+    key: 'render',
+    value: function render() {
+      var _this7 = this;
+
+      var data = {};
+
+      this.props.standings.forEach(function (s) {
+        if (s.elapsed_time === "0") {
+          var participating = false;
+          s.tasks.forEach(function (t) {
+            if (t.score !== undefined) participating = true;
+          });
+          if (participating === false) return;
+        }
+
+        var country = s.country;
+
+        if (data[country] === undefined) {
+          data[country] = {
+            country: country,
+            contestants: 1
+          };
+        } else {
+          data[country].contestants += 1;
+        }
+      });
+
+      data = Object.keys(data).map(function (c) {
+        return data[c];
+      });
+
+      data.sort(function (x, y) {
+        var res = x[_this7.state.sortingKey] < y[_this7.state.sortingKey];
+        res = _this7.state.ascending ? res : !res;
+        return res ? -1 : 1;
+      });
+
+      var comp = data.map(function (d, idx) {
+        return React.createElement(
+          'tr',
+          { key: idx },
+          React.createElement(
+            'td',
+            null,
+            React.createElement('img', { src: '/img/flag/' + d.country + '.png', style: { verticalAlign: "middle", width: "16px", height: "16px" } }),
+            ' ',
+            _util.countries[d.country]
+          ),
+          React.createElement(
+            'td',
+            null,
+            d.contestants
+          )
+        );
+      });
+
+      return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'h3',
+          null,
+          'Number of Contestants (Country)'
+        ),
+        React.createElement(
+          'table',
+          { className: 'table table-bordered table-condensed' },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this7.state.sortingKey == "country") _this7.setState({ sortingKey: "country", ascending: !_this7.state.ascending });else _this7.setState({ sortingKey: "country", ascending: true });
+                  } },
+                'Country'
+              ),
+              React.createElement(
+                'th',
+                { onClick: function onClick() {
+                    if (_this7.state.sortingKey == "contestants") _this7.setState({ sortingKey: "contestants", ascending: !_this7.state.ascending });else _this7.setState({ sortingKey: "contestants", ascending: false });
+                  } },
+                'Contestants'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            comp
+          )
+        )
+      );
+    }
+  }]);
+
+  return NumberOfCountryContestants;
+}(React.Component);
+
+var StatsSummary = function (_React$Component5) {
+  _inherits(StatsSummary, _React$Component5);
 
   function StatsSummary(props) {
     _classCallCheck(this, StatsSummary);
 
-    var _this = _possibleConstructorReturn(this, (StatsSummary.__proto__ || Object.getPrototypeOf(StatsSummary)).call(this, props));
+    var _this8 = _possibleConstructorReturn(this, (StatsSummary.__proto__ || Object.getPrototypeOf(StatsSummary)).call(this, props));
 
-    _this.genDataset.bind(_this);
-    return _this;
+    _this8.genDataset.bind(_this8);
+    return _this8;
   }
 
   _createClass(StatsSummary, [{
@@ -2888,7 +3482,20 @@ var StatsSummary = function (_React$Component) {
             '.'
           ) : null
         ),
-        React.createElement(_chartComponent2.default, { canvasId: 'chartSummary', dataset: this.genDataset(), width: '500', height: '280' })
+        React.createElement(
+          'div',
+          null,
+          React.createElement(
+            'h3',
+            null,
+            'Score Distribution'
+          ),
+          React.createElement(_chartComponent2.default, { canvasId: 'chartSummary', dataset: this.genDataset(), width: '500', height: '280' })
+        ),
+        React.createElement(TopOfColors, { standings: this.props.standings }),
+        React.createElement(TopOfCountries, { standings: this.props.standings }),
+        React.createElement(NumberOfColorContestants, { standings: this.props.standings }),
+        React.createElement(NumberOfCountryContestants, { standings: this.props.standings })
       );
     }
   }]);
@@ -3185,7 +3792,7 @@ var StatsTask = function (_React$Component) {
               'span',
               { style: { color: _util.rating.colorOriginal[idx + 1] } },
               _util.rating.lb[idx + 1],
-              '-'
+              ' - '
             )
           ),
           React.createElement(
@@ -3331,80 +3938,98 @@ var StatsTask = function (_React$Component) {
               rowAll
             )
           ),
-          React.createElement(_chartComponent2.default, { canvasId: 'taskChart_' + this.props.task.id, dataset: this.generateDataset(),
-            width: '800', height: '340' }),
           React.createElement(
-            'table',
-            { className: 'table table-bordered table-condensed' },
+            'div',
+            null,
             React.createElement(
-              'thead',
+              'h3',
               null,
-              React.createElement(
-                'tr',
-                null,
-                React.createElement(
-                  'th',
-                  null,
-                  'Rating'
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  React.createElement(
-                    'span',
-                    { title: 'number of people who got max score (may be partial score)' },
-                    'AC'
-                  )
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  React.createElement(
-                    'span',
-                    { title: 'number of people who made at least one submission for this task' },
-                    'Attempted'
-                  )
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  React.createElement(
-                    'span',
-                    { title: 'number of submissions for this task' },
-                    'Submissions'
-                  )
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  'AC / Attempted'
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  'AC / Contestants'
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  'Fastest'
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  'Average Time'
-                ),
-                React.createElement(
-                  'th',
-                  null,
-                  'Average WA'
-                )
-              )
+              'AC Time Distribution'
+            ),
+            React.createElement(_chartComponent2.default, { canvasId: 'taskChart_' + this.props.task.id, dataset: this.generateDataset(),
+              width: '800', height: '340' })
+          ),
+          React.createElement(
+            'div',
+            null,
+            React.createElement(
+              'h3',
+              null,
+              'Color Stats'
             ),
             React.createElement(
-              'tbody',
-              null,
-              rowColor
+              'table',
+              { className: 'table table-bordered table-condensed' },
+              React.createElement(
+                'thead',
+                null,
+                React.createElement(
+                  'tr',
+                  null,
+                  React.createElement(
+                    'th',
+                    null,
+                    'Rating'
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    React.createElement(
+                      'span',
+                      { title: 'number of people who got max score (may be partial score)' },
+                      'AC'
+                    )
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    React.createElement(
+                      'span',
+                      { title: 'number of people who made at least one submission for this task' },
+                      'Attempted'
+                    )
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    React.createElement(
+                      'span',
+                      { title: 'number of submissions for this task' },
+                      'Submissions'
+                    )
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    'AC / Attempted'
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    'AC / Contestants'
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    'Fastest'
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    'Average Time'
+                  ),
+                  React.createElement(
+                    'th',
+                    null,
+                    'Average WA'
+                  )
+                )
+              ),
+              React.createElement(
+                'tbody',
+                null,
+                rowColor
+              )
             )
           )
         );

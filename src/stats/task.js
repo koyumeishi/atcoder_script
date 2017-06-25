@@ -193,7 +193,7 @@ export default class StatsTask extends React.Component{
     const rowColor = dataColor.map( (data, idx) => {
       return (
         <tr key={idx}>
-          <td><span style={{color : rating.colorOriginal[idx+1]}}>{rating.lb[idx+1]}-</span></td>
+          <td><span style={{color : rating.colorOriginal[idx+1]}}>{rating.lb[idx+1]} - </span></td>
           <td>{data.numAC}</td>
           <td>{data.numPeopleTried}</td>
           <td>{data.numSubmissions}</td>
@@ -233,27 +233,33 @@ export default class StatsTask extends React.Component{
               {rowAll}
             </tbody>
           </table>
-          <ChartComponent canvasId={`taskChart_${this.props.task.id}`} dataset={this.generateDataset()}
-                          width="800" height="340" />
-          <table className="table table-bordered table-condensed">
-            <thead>
-              <tr>
-                <th>Rating</th>
-                <th><span title="number of people who got max score (may be partial score)">AC</span></th>
-                <th><span title="number of people who made at least one submission for this task">Attempted</span></th>
-                <th><span title="number of submissions for this task">Submissions</span></th>
-                {/*<th>AC / Submissions</th>*/}
-                <th>AC / Attempted</th>
-                <th>AC / Contestants</th>
-                <th>Fastest</th>
-                <th>Average Time</th>
-                <th>Average WA</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rowColor}
-            </tbody>
-          </table>
+          <div>
+            <h3>AC Time Distribution</h3>
+            <ChartComponent canvasId={`taskChart_${this.props.task.id}`} dataset={this.generateDataset()}
+                            width="800" height="340" />
+          </div>
+          <div>
+            <h3>Color Stats</h3>
+            <table className="table table-bordered table-condensed">
+              <thead>
+                <tr>
+                  <th>Rating</th>
+                  <th><span title="number of people who got max score (may be partial score)">AC</span></th>
+                  <th><span title="number of people who made at least one submission for this task">Attempted</span></th>
+                  <th><span title="number of submissions for this task">Submissions</span></th>
+                  {/*<th>AC / Submissions</th>*/}
+                  <th>AC / Attempted</th>
+                  <th>AC / Contestants</th>
+                  <th>Fastest</th>
+                  <th>Average Time</th>
+                  <th>Average WA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rowColor}
+              </tbody>
+            </table>
+          </div>
         </div>
       );
       return res;

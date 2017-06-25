@@ -1,5 +1,8 @@
 ### Release Notes
 
+##### v1.0.2 2017.06.25
+-  Summary に表示する情報追加
+
 ##### v1.0.1 2017.06.22
 -  誤字訂正 Summery -> Summary
 
