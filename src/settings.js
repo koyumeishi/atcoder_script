@@ -108,6 +108,7 @@ class SettingsContent extends React.Component{
         {this.generateForm( "disableRatingColor", "Disable Rating Color")}
         {this.generateForm( "highlightFriends", "Highlight Friends")}
         {this.generateForm( "showNationalFlag", "Show National Flag")}
+        {this.generateForm( "saveFilteringState", "Save Filtering State (if this option is checked, your filtering state will be restored when you open standings page)")}
         <hr/>
         {this.generateFriendsListForm()}
       </div>

@@ -7,17 +7,27 @@ export default class AppSettings{
     this.pageSize           = 50;
     this.showNationalFlag   = true;
 
+    this.saveFilteringState = false;
+
     this.filterCountry    = null;
     this.filterRating     = new Set([1,2,3,4,5,6,7,8,9]);
 
-    if(load === true) this.load();
-
-    //reset temporary options
     this.filterByFriends = false;
     this.filterByCountry = false;
     this.filterByRating  = false;
     this.filterByName    = false;
     this.filterName      = "";
+
+    if(load === true) this.load();
+
+    if( this.saveFilteringState === false ){
+      //reset temporary options
+      this.filterByFriends = false;
+      this.filterByCountry = false;
+      this.filterByRating  = false;
+      this.filterByName    = false;
+      this.filterName      = "";
+    }
 
     this.sortingEnabled = false;
     // "rank", "user_screen_name", "rating", "country", "competitions", "task{i}"
@@ -31,16 +41,16 @@ export default class AppSettings{
   load(){
     //load
     try{
-        const settings = JSON.parse( GM_getValue('settings', '{}') );
-        Object.assign( this, settings);
-        if( this.filterRating === undefined) this.filterRating = new Set([1,2,3,4,5,6,7,8,9]);
-        else this.filterRating = new Set(this.filterRating);
+      const settings = JSON.parse( GM_getValue('settings', '{}') );
+      Object.assign( this, settings);
+      if( this.filterRating === undefined) this.filterRating = new Set([1,2,3,4,5,6,7,8,9]);
+      else this.filterRating = new Set(this.filterRating);
 
-        console.log("loaded : settings");
-        console.log(this);
+      console.log("loaded : settings");
+      console.log(this);
     }catch(e){
-        console.log("faild to load settings");
-        console.log(e);
+      console.log("faild to load settings");
+      console.log(e);
     }
   }
   save(){

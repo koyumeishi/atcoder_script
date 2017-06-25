@@ -5,7 +5,7 @@
 // @author      koyumeishi
 // @include     http://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js
-// @version     1.0.2
+// @version     1.0.3
 // @run-at      document-idle
 // @require     https://unpkg.com/react@15/dist/react.js
 // @require     https://unpkg.com/react-dom@15/dist/react-dom.js
@@ -23,7 +23,7 @@
 // LICENSE
 // MIT
 
-const accsVersion = "1.0.2";
+const accsVersion = "1.0.3";
 
 console.log( "AtCoderCustomStandings ver.", accsVersion);
 GM_listValues().forEach( (v) => {console.log( v, GM_getValue(v) );} );
@@ -323,17 +323,27 @@ var AppSettings = function () {
         this.pageSize = 50;
         this.showNationalFlag = true;
 
+        this.saveFilteringState = false;
+
         this.filterCountry = null;
         this.filterRating = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-        if (load === true) this.load();
-
-        //reset temporary options
         this.filterByFriends = false;
         this.filterByCountry = false;
         this.filterByRating = false;
         this.filterByName = false;
         this.filterName = "";
+
+        if (load === true) this.load();
+
+        if (this.saveFilteringState === false) {
+            //reset temporary options
+            this.filterByFriends = false;
+            this.filterByCountry = false;
+            this.filterByRating = false;
+            this.filterByName = false;
+            this.filterName = "";
+        }
 
         this.sortingEnabled = false;
         // "rank", "user_screen_name", "rating", "country", "competitions", "task{i}"
@@ -455,6 +465,10 @@ var _reload = require('./reload.js');
 
 var _reload2 = _interopRequireDefault(_reload);
 
+var _appSettings = require('./appSettings.js');
+
+var _appSettings2 = _interopRequireDefault(_appSettings);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -463,8 +477,65 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Controll = function (_React$Component) {
-  _inherits(Controll, _React$Component);
+var FriendsButton = function (_React$Component) {
+  _inherits(FriendsButton, _React$Component);
+
+  function FriendsButton(props) {
+    _classCallCheck(this, FriendsButton);
+
+    var _this = _possibleConstructorReturn(this, (FriendsButton.__proto__ || Object.getPrototypeOf(FriendsButton)).call(this, props));
+
+    _this.update.bind(_this);
+    return _this;
+  }
+
+  _createClass(FriendsButton, [{
+    key: 'update',
+    value: function update(option) {
+      var newSettings = Object.assign(new _appSettings2.default(), this.props.settings);
+      for (var param in option) {
+        newSettings[param] = option[param];
+      }
+      this.props.settingsUpdateFunc(newSettings);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var button = React.createElement(
+        'a',
+        { href: '#',
+          className: 'atcoder-custom-standings ' + (this.props.settings.filterByFriends ? "filtering-enabled" : "filtering-disabled") },
+        React.createElement(
+          'i',
+          { className: 'material-icons' },
+          'people'
+        ),
+        'Friends'
+      );
+
+      return React.createElement(
+        'div',
+        { className: 'atcoder-custom-standings controller-button' },
+        React.createElement(
+          'div',
+          { onClick: function onClick() {
+              var newSettings = Object.assign(new _appSettings2.default(), _this2.props.settings);
+              newSettings["filterByFriends"] = !_this2.props.settings.filterByFriends;
+              _this2.props.settingsUpdateFunc(newSettings);
+            } },
+          button
+        )
+      );
+    }
+  }]);
+
+  return FriendsButton;
+}(React.Component);
+
+var Controll = function (_React$Component2) {
+  _inherits(Controll, _React$Component2);
 
   function Controll(props) {
     _classCallCheck(this, Controll);
@@ -477,7 +548,7 @@ var Controll = function (_React$Component) {
     value: function render() {
       var ret = React.createElement(
         'div',
-        { style: { display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "auto auto auto auto auto" } },
+        { style: { display: "grid", gridTemplateRows: "1fr", gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" } },
         React.createElement(
           'div',
           { style: { gridRow: "1/2", gridColumn: "1/2", padding: "4px" } },
@@ -488,6 +559,14 @@ var Controll = function (_React$Component) {
         React.createElement(
           'div',
           { style: { gridRow: "1/2", gridColumn: "2/3", padding: "4px" } },
+          React.createElement(FriendsButton, {
+            settings: this.props.settings,
+            settingsUpdateFunc: this.props.settingsUpdateFunc
+          })
+        ),
+        React.createElement(
+          'div',
+          { style: { gridRow: "1/2", gridColumn: "3/4", padding: "4px" } },
           React.createElement(_filter2.default, {
             settings: this.props.settings,
             settingsUpdateFunc: this.props.settingsUpdateFunc,
@@ -496,7 +575,7 @@ var Controll = function (_React$Component) {
         ),
         React.createElement(
           'div',
-          { style: { gridRow: "1/2", gridColumn: "3/4", padding: "4px" } },
+          { style: { gridRow: "1/2", gridColumn: "4/5", padding: "4px" } },
           React.createElement(_sorting2.default, {
             settings: this.props.settings,
             contest: this.props.contest,
@@ -505,7 +584,7 @@ var Controll = function (_React$Component) {
         ),
         React.createElement(
           'div',
-          { style: { gridRow: "1/2", gridColumn: "4/5", padding: "4px" } },
+          { style: { gridRow: "1/2", gridColumn: "5/6", padding: "4px" } },
           React.createElement(_stats2.default, {
             standings: this.props.standings,
             contest: this.props.contest
@@ -513,7 +592,7 @@ var Controll = function (_React$Component) {
         ),
         React.createElement(
           'div',
-          { style: { gridRow: "1/2", gridColumn: "5/6", padding: "4px" } },
+          { style: { gridRow: "1/2", gridColumn: "6/7", padding: "4px" } },
           React.createElement(_settings2.default, {
             settings: this.props.settings,
             settingsUpdateFunc: this.props.settingsUpdateFunc,
@@ -532,7 +611,7 @@ var Controll = function (_React$Component) {
 
 exports.default = Controll;
 
-},{"./filter.js":6,"./reload.js":11,"./settings.js":12,"./sorting.js":13,"./stats.js":15}],5:[function(require,module,exports){
+},{"./appSettings.js":2,"./filter.js":6,"./reload.js":11,"./settings.js":12,"./sorting.js":13,"./stats.js":15}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1613,6 +1692,7 @@ var SettingsContent = function (_React$Component) {
         this.generateForm("disableRatingColor", "Disable Rating Color"),
         this.generateForm("highlightFriends", "Highlight Friends"),
         this.generateForm("showNationalFlag", "Show National Flag"),
+        this.generateForm("saveFilteringState", "Save Filtering State (if this option is checked, your filtering state will be restored when you open standings page)"),
         React.createElement('hr', null),
         this.generateFriendsListForm()
       );
