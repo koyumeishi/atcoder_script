@@ -4,6 +4,7 @@
 // @description customize your standings on atcoder
 // @author      koyumeishi
 // @include     http://*.contest.atcoder.jp/standings*
+// @include     https://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js
 // @version     __version__
 // @run-at      document-idle

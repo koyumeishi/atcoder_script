@@ -104,7 +104,7 @@ export default class StatsTask extends React.Component{
     let data = rating.lb.map( () => (new Array( Math.floor( (contestDuration+this.timeStep-1) / this.timeStep ) )).fill(0) );
     this.props.standings.forEach( (r) => {
       const t = r.tasks[ this.props.task.id ];
-      if( t.score === this.maxScore ){
+      if( t.score !== 0 && t.score === this.maxScore ){
         data[ rating.getLevel( r.rating ) ][ Math.floor(t.elapsed_time / this.timeStep) ] += 1;
       }
     });

@@ -4,8 +4,9 @@
 // @description customize your standings on atcoder
 // @author      koyumeishi
 // @include     http://*.contest.atcoder.jp/standings*
+// @include     https://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js
-// @version     1.0.3
+// @version     1.0.4
 // @run-at      document-idle
 // @require     https://unpkg.com/react@15/dist/react.js
 // @require     https://unpkg.com/react-dom@15/dist/react-dom.js
@@ -23,7 +24,7 @@
 // LICENSE
 // MIT
 
-const accsVersion = "1.0.3";
+const accsVersion = "1.0.4";
 
 console.log( "AtCoderCustomStandings ver.", accsVersion);
 GM_listValues().forEach( (v) => {console.log( v, GM_getValue(v) );} );
@@ -3764,7 +3765,7 @@ var StatsTask = function (_React$Component) {
       });
       this.props.standings.forEach(function (r) {
         var t = r.tasks[_this4.props.task.id];
-        if (t.score === _this4.maxScore) {
+        if (t.score !== 0 && t.score === _this4.maxScore) {
           data[_util.rating.getLevel(r.rating)][Math.floor(t.elapsed_time / _this4.timeStep)] += 1;
         }
       });
