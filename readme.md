@@ -1,12 +1,14 @@
 # AtCoder Scripts
 [@koyumeishi_](https://twitter.com/koyumeishi_) の AtCoder用 UserScript置き場  
 
+
 ##目録
 * [AtCoderCustomStandings](#AtCoderCustomStandings)
 * [AtCoderModalMoudarui](#AtCoderModalMoudarui)
 
 ## AtCoderCustomStandings <a id="AtCoderCustomStandings"></a>
-[https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js](https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js)
+[https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js](https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js)  
+#### English version is [here](readme_eng.md)
 
 * [Introduction](#introduction)
 * [Installation](#install)

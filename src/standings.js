@@ -32,30 +32,41 @@ class UserDetails extends React.Component{
         {this.props.isFriend ? "Remove from Friends List" : "Add to Friends List"}
       </span>
     );
+    const twitter = this.props.row.twitter_id == "" ? "" : (
+      <div className="atcoder-custom-standings user-dropdown-menu">
+        TwitterID : 
+        <a href={`https://twitter.com/${encodeURIComponent(this.props.row.twitter_id)}`} target="_blank">
+          {this.props.row.twitter_id}
+        </a>
+      </div> );
 
     return (
       <div id={`user-dropdown-menu-${this.props.row.user_name}`}
            className="atcoder-custom-standings user-dropdown-menu-box">
-           <div className="atcoder-custom-standings user-dropdown-menu">
-             <a href={link} className={`username ${this.props.color}`} target="_blank">
-               {this.props.row.user_name} / {this.props.row.user_screen_name}
-             </a>
-           </div>
-           <div className="atcoder-custom-standings user-dropdown-menu">
-             {submissions}
-           </div>
-           <div className="atcoder-custom-standings user-dropdown-menu">
-             Rating : <span style={{color:ratingColor, fontWeight:"bold"}}>{this.props.row.rating}</span>
-           </div>
-           <div className="atcoder-custom-standings user-dropdown-menu">
-             Country : <img src={`/img/flag/${this.props.row.country}.png`} style={{verticalAlign: "middle", width: "16px", height: "16px"}} />
-             {countries[this.props.row.country]}
-           </div>
-           <div id={`user-dropdown-menu-${this.props.row.user_name}-friend`}
-                className="atcoder-custom-standings user-dropdown-menu"
-                style={this.props.row.user_screen_name === Me.user_screen_name ? {display:"none"} : {}}>
-             {friend}
-           </div>
+         <div className="atcoder-custom-standings user-dropdown-menu">
+           <a href={link} className={`username ${this.props.color}`} target="_blank">
+             {this.props.row.user_name} / {this.props.row.user_screen_name}
+           </a>
+         </div>
+         <div className="atcoder-custom-standings user-dropdown-menu">
+           {submissions}
+         </div>
+         <div className="atcoder-custom-standings user-dropdown-menu">
+           Rating : <span style={{color:ratingColor, fontWeight:"bold"}}>{this.props.row.rating}</span>
+         </div>
+         <div className="atcoder-custom-standings user-dropdown-menu">
+           <span title="the number of rated contests">Competitions : {this.props.row.competitions}</span>
+         </div>
+         <div className="atcoder-custom-standings user-dropdown-menu">
+           Country : <img src={`/img/flag/${this.props.row.country}.png`} style={{verticalAlign: "middle", width: "16px", height: "16px"}} />
+           {countries[this.props.row.country]}
+         </div>
+         {twitter}
+         <div id={`user-dropdown-menu-${this.props.row.user_name}-friend`}
+              className="atcoder-custom-standings user-dropdown-menu"
+              style={this.props.row.user_screen_name === Me.user_screen_name ? {display:"none"} : {}}>
+           {friend}
+         </div>
       </div>
     );
   }

@@ -6,7 +6,7 @@
 // @include     http://*.contest.atcoder.jp/standings*
 // @include     https://*.contest.atcoder.jp/standings*
 // @downloadURL https://koyumeishi.github.io/atcoder_script/atcoder_custom_standings.user.js
-// @version     1.0.4
+// @version     1.0.5
 // @run-at      document-idle
 // @require     https://unpkg.com/react@15/dist/react.js
 // @require     https://unpkg.com/react-dom@15/dist/react-dom.js
@@ -24,7 +24,7 @@
 // LICENSE
 // MIT
 
-const accsVersion = "1.0.4";
+const accsVersion = "1.0.5";
 
 console.log( "AtCoderCustomStandings ver.", accsVersion);
 GM_listValues().forEach( (v) => {console.log( v, GM_getValue(v) );} );
@@ -2126,6 +2126,16 @@ var UserDetails = function (_React$Component) {
         ),
         this.props.isFriend ? "Remove from Friends List" : "Add to Friends List"
       );
+      var twitter = this.props.row.twitter_id == "" ? "" : React.createElement(
+        'div',
+        { className: 'atcoder-custom-standings user-dropdown-menu' },
+        'TwitterID :',
+        React.createElement(
+          'a',
+          { href: 'https://twitter.com/' + encodeURIComponent(this.props.row.twitter_id), target: '_blank' },
+          this.props.row.twitter_id
+        )
+      );
 
       return React.createElement(
         'div',
@@ -2160,10 +2170,21 @@ var UserDetails = function (_React$Component) {
         React.createElement(
           'div',
           { className: 'atcoder-custom-standings user-dropdown-menu' },
+          React.createElement(
+            'span',
+            { title: 'the number of rated contests' },
+            'Competitions : ',
+            this.props.row.competitions
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'atcoder-custom-standings user-dropdown-menu' },
           'Country : ',
           React.createElement('img', { src: '/img/flag/' + this.props.row.country + '.png', style: { verticalAlign: "middle", width: "16px", height: "16px" } }),
           _util.countries[this.props.row.country]
         ),
+        twitter,
         React.createElement(
           'div',
           { id: 'user-dropdown-menu-' + this.props.row.user_name + '-friend',
